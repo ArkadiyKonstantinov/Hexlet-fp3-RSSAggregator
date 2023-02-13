@@ -1,0 +1,27 @@
+{
+  "name": "@hexlet/code",
+  "version": "1.0.0",
+  "description": "RSS Reader",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ArkadiyKonstantinov/frontend-project-11.git"
+  },
+  "author": "Arkadiy Konstantinov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ArkadiyKonstantinov/frontend-project-11/issues"
+  },
+  "homepage": "https://github.com/ArkadiyKonstantinov/frontend-project-11#readme",
+  "type": "module",
+  "devDependencies": {
+    "eslint": "^8.34.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-plugin-babel": "^5.3.1",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-jest": "^27.2.1"
+  }
+}
