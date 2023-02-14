@@ -4,12 +4,13 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 
-const isProduction = process.env.NODE_ENV == 'production';
+// const isProduction = process.env.NODE_ENV == 'production';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 
-const config = {
+export default {
+    mode: process.env.NODE_ENV || 'development',
     entry: './src/index.js',
     output: {
         path: path.resolve(__dirname, 'dist'),
@@ -36,20 +37,21 @@ const config = {
                 test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
                 type: 'asset',
             },
-
+            {
+                test: /\.css$/i,
+                use: ['style-loader', 'css-loader'],
+            },
             // Add your rules for custom modules here
             // Learn more about loaders from https://webpack.js.org/loaders/
         ],
     },
 };
 
-module.exports = () => {
-    if (isProduction) {
-        config.mode = 'production';
-        
-        
-    } else {
-        config.mode = 'development';
-    }
-    return config;
-};
+// export default () => {
+//     if (isProduction) {
+//         config.mode = 'production';
+//     } else {
+//         config.mode = 'development';
+//     }
+//     return config;
+// };
