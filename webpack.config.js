@@ -1,57 +1,88 @@
 // Generated using webpack-cli https://github.com/webpack/webpack-cli
 
-import path from 'path';
 import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
+import { WebpackPluginServe } from 'webpack-plugin-serve';
+import { AddDependencyPlugin } from "webpack-add-dependency-plugin";
 
-// const isProduction = process.env.NODE_ENV == 'production';
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
+const __dirname = dirname(__filename);
+const mode = process.env.NODE_ENV || 'development';
 
 export default {
-    mode: process.env.NODE_ENV || 'development',
-    entry: './src/index.js',
+    watch: mode === "development",
+    // watchOptions: {
+    //     aggregateTimeout: 300, // Delay the first rebuild (in ms)
+    //     poll: 1000, // Poll using interval (in ms or a boolean)
+    //     ignored: /node_modules/, // Ignore to decrease CPU usage
+    //   },
+    mode: mode,
+    entry: ["./src", "webpack-plugin-serve/client"],
     output: {
-        path: path.resolve(__dirname, 'dist'),
+        clean: true,
+        path: resolve(process.cwd(), './dist'),
     },
     devServer: {
+        static: {
+            directory: resolve(process.cwd(), 'dist'),
+        },
+        watchFiles: [resolve(process.cwd(), 'dist/index.html')],
         open: true,
-        host: 'localhost',
+        hot: true,
+        liveReload: true,
+        compress: true,
+        historyApiFallback: true,
     },
     plugins: [
         new HtmlWebpackPlugin({
-            template: 'index.html',
+            title: 'Hexlet App',
+            filename: 'index.html',
+            template: 'src/template.html',
         }),
 
-        // Add your plugins here
-        // Learn more about plugins from https://webpack.js.org/configuration/plugins/
+        // new MiniCssExtractPlugin({
+        //     filename: "stryle.css",
+        //   }),
+
+        // new AddDependencyPlugin({ path: "./src/template.html" }),
+
+        // new WebpackPluginServe({
+        //     port: 8080,
+        //     static: "./dist",
+        //     liveReload: true,
+        //     waitForBuild: true,
+        //   }),
     ],
     module: {
         rules: [
-            {
-                test: /\.(js|jsx)$/i,
-                loader: 'babel-loader',
+            { 
+                test: /\.css$/,
+                use: ['style-loader', 'css-loader']
             },
-            {
-                test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
-                type: 'asset',
-            },
-            {
-                test: /\.css$/i,
-                use: ['style-loader', 'css-loader'],
-            },
-            // Add your rules for custom modules here
-            // Learn more about loaders from https://webpack.js.org/loaders/
+            // {
+            //     test: /\.(js|jsx)$/i,
+            //     loader: 'babel-loader',
+            //     options: {
+            //         presets: ['@babel/preset-env'],
+            //     },
+            // },
+            // {
+            //     test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
+            //     type: 'asset',
+            // },
+            // {
+            //     test: /\.scss$/,
+            //     use: ['style-loader', 'css-loader', 'sass-loader'],
+            // },
+            // {
+            //     test: /\.woff2?(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+            //     use: 'url-loader?limit=10000',
+            // },
+            // {
+            //     test: /\.(ttf|eot|svg)(\?[\s\S]+)?$/,
+            //     use: 'file-loader',
+            // },
         ],
     },
 };
-
-// export default () => {
-//     if (isProduction) {
-//         config.mode = 'production';
-//     } else {
-//         config.mode = 'development';
-//     }
-//     return config;
-// };
