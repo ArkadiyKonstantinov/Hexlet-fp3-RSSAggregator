@@ -6,3 +6,4 @@
 [![CI](https://github.com/ArkadiyKonstantinov/frontend-project-11/actions/workflows/ci.yml/badge.svg)](https://github.com/ArkadiyKonstantinov/frontend-project-11/actions/workflows/ci.yml)
 
 [RSS Aggregator](htts://rss-aggregator-87fdfc.netlify.app)
+htts://rss-aggregator-87fdfc.netlify.app
