@@ -1,6 +1,6 @@
-plugins:
-  - jest
-  - babel
+# plugins:
+  # - jest
+  # - babel
 
 env:
   node: true
@@ -10,7 +10,7 @@ env:
 
 extends:
   - "airbnb-base"
-  - "plugin:jest/recommended"
+  # - "plugin:jest/recommended"
 
 overrides: []
 
@@ -21,3 +21,4 @@ parserOptions:
 rules:
   no-console: 0
   import/extensions: 0
+  import/no-relative-packages: 0

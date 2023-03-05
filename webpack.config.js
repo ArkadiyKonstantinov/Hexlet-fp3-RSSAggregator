@@ -1,18 +1,18 @@
 // Generated using webpack-cli https://github.com/webpack/webpack-cli
 
-import { fileURLToPath } from 'url';
-import { dirname, resolve } from 'path';
+// import { fileURLToPath } from 'url';
+import { resolve } from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import { WebpackPluginServe } from 'webpack-plugin-serve';
-import { AddDependencyPlugin } from "webpack-add-dependency-plugin";
+// import { AddDependencyPlugin } from "webpack-add-dependency-plugin";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = dirname(__filename);
 const mode = process.env.NODE_ENV || 'development';
 
 export default {
     devtool: 'source-map',
-    watch: mode === "development",
+    watch: mode === 'development',
     watchOptions: {
         aggregateTimeout: 300, // Delay the first rebuild (in ms)
         poll: 1000, // Poll using interval (in ms or a boolean)

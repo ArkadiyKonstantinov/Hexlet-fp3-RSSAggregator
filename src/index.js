@@ -1,21 +1,16 @@
-import  '../node_modules/bootstrap/dist/css/bootstrap.min.css';
-import  'bootstrap';
-import view from './view.js';
+import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap';
 
 import keyBy from 'lodash/keyBy.js';
 import * as yup from 'yup';
+import view from './view.js';
 
 const schema = yup.object().shape(
   {
     rssUrl: yup.string().url('Ссылка должна быть валидным URL'),
-  }
+  },
 );
-let result = {};
-const validate = (state) => {
-  return schema.validate(state.form.fields, { abortEarly: false })
-    // .then(() => { return [state, {}] })
-    // .catch((errors) => { return [state, errors] }); 
-};
+const validate = (state) => schema.validate(state.form.fields, { abortEarly: false });
 
 const app = () => {
   const elements = {
@@ -38,17 +33,16 @@ const app = () => {
       fieldsUi: {
         touched: {
           rssUrl: false,
-        }
-      }
-      
-    }
-  }
+        },
+      },
+    },
+  };
 
   const state = view(initialState, elements);
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
-    const value = elements.fields.rssUrl.value;
+    const { value } = elements.fields.rssUrl;
     state.form.fields.rssUrl = value;
     state.form.fieldsUi.touched.rssUrl = true;
     validate(state)
@@ -59,8 +53,8 @@ const app = () => {
       .catch((errors) => {
         state.form.errors = keyBy(errors.inner, 'path');
         state.form.valid = false;
-      }); 
-  })
+      });
+  });
 };
 
 app();

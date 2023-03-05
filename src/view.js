@@ -10,6 +10,8 @@ const render = (state, elements) => (path, value, prevValue) => {
           break;
         default:
           break;
+      }
+      break;
     case 'form.valid':
       if (value) {
         elements.submitButton.classList.remove('disabled');
@@ -17,13 +19,12 @@ const render = (state, elements) => (path, value, prevValue) => {
       }
       elements.submitButton.classList.add('disabled');
       break;
-      }
-    case 'form.errors':
+    case 'form.errors': {
       const error = value.rssUrl;
-      const rssUrl = elements.fields.rssUrl;
+      const { rssUrl } = elements.fields;
       const rssUrlContainer = elements.form.parentElement;
-      let feedbackEl = rssUrlContainer.querySelector('.feedback');
-      const fieldHadError = has(prevValue,  'rssUrl');
+      const feedbackEl = rssUrlContainer.querySelector('.feedback');
+      const fieldHadError = has(prevValue, 'rssUrl');
       const fieldHasError = has(value, 'rssUrl');
       if (!fieldHadError && !fieldHasError) {
         return;
@@ -47,11 +48,10 @@ const render = (state, elements) => (path, value, prevValue) => {
         rssUrlContainer.append(newFeedbackEl);
       }
       break;
+    }
     default:
       break;
   }
 };
 
-export default (state, elements) => {
-  return onChange(state, render(state, elements));
-}
+export default (state, elements) => onChange(state, render(state, elements));
