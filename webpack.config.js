@@ -11,12 +11,13 @@ const __dirname = dirname(__filename);
 const mode = process.env.NODE_ENV || 'development';
 
 export default {
+    devtool: 'source-map',
     watch: mode === "development",
-    // watchOptions: {
-    //     aggregateTimeout: 300, // Delay the first rebuild (in ms)
-    //     poll: 1000, // Poll using interval (in ms or a boolean)
-    //     ignored: /node_modules/, // Ignore to decrease CPU usage
-    //   },
+    watchOptions: {
+        aggregateTimeout: 300, // Delay the first rebuild (in ms)
+        poll: 1000, // Poll using interval (in ms or a boolean)
+        ignored: /node_modules/, // Ignore to decrease CPU usage
+      },
     mode: mode,
     entry: ["./src", "webpack-plugin-serve/client"],
     output: {
@@ -47,12 +48,12 @@ export default {
 
         // new AddDependencyPlugin({ path: "./src/template.html" }),
 
-        // new WebpackPluginServe({
-        //     port: 8080,
-        //     static: "./dist",
-        //     liveReload: true,
-        //     waitForBuild: true,
-        //   }),
+        new WebpackPluginServe({
+            port: 8080,
+            static: "./dist",
+            liveReload: true,
+            waitForBuild: true,
+          }),
     ],
     module: {
         rules: [
