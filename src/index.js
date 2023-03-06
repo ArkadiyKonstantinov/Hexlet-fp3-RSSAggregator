@@ -12,7 +12,7 @@ const schema = yup.object().shape(
 );
 const validate = (state) => schema.validate(state.form.fields, { abortEarly: false });
 
-const elements = {
+const defaultElements = {
   form: document.querySelector('.rss-form'),
   submitButton: document.querySelector('input[type="submit"]'),
   fields: {
@@ -20,7 +20,7 @@ const elements = {
   },
 };
 
-const initialState = {
+const defaultState = {
   form: {
     processState: 'filling',
     processError: null,
@@ -57,4 +57,4 @@ const app = (initialState, elements) => {
   });
 };
 
-app(initialState, elements);
+app(defaultState, defaultElements);
