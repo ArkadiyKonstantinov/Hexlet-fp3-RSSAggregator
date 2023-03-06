@@ -12,32 +12,32 @@ const schema = yup.object().shape(
 );
 const validate = (state) => schema.validate(state.form.fields, { abortEarly: false });
 
-const app = () => {
-  const elements = {
-    form: document.querySelector('.rss-form'),
-    submitButton: document.querySelector('input[type="submit"]'),
+const elements = {
+  form: document.querySelector('.rss-form'),
+  submitButton: document.querySelector('input[type="submit"]'),
+  fields: {
+    rssUrl: document.getElementById('url-input'),
+  },
+};
+
+const initialState = {
+  form: {
+    processState: 'filling',
+    processError: null,
+    valid: true,
+    errors: {},
     fields: {
-      rssUrl: document.getElementById('url-input'),
+      rssUrl: '',
     },
-  };
-
-  const initialState = {
-    form: {
-      processState: 'filling',
-      processError: null,
-      valid: true,
-      errors: {},
-      fields: {
-        rssUrl: '',
-      },
-      fieldsUi: {
-        touched: {
-          rssUrl: false,
-        },
+    fieldsUi: {
+      touched: {
+        rssUrl: false,
       },
     },
-  };
+  },
+};
 
+const app = (initialState, elements) => {
   const state = view(initialState, elements);
 
   elements.form.addEventListener('submit', (e) => {
@@ -57,4 +57,4 @@ const app = () => {
   });
 };
 
-app();
+app(initialState, elements);
