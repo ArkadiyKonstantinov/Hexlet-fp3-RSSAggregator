@@ -1,7 +1,8 @@
 import onChange from 'on-change';
 import has from 'lodash/has.js';
 
-const renderError = (elements, feedbackEl, error) => {
+const renderError = (elements, error) => {
+  const feedbackEl = document.querySelector('.feedback');
   const { rssUrl } = elements.fields;
   const rssUrlContainer = elements.form.parentElement;
   if (feedbackEl) {
@@ -15,9 +16,9 @@ const renderError = (elements, feedbackEl, error) => {
   rssUrlContainer.append(newFeedbackEl);
 };
 
-const removeError = (elements, feedbackEl) => {
+const removeError = (elements) => {
+  const feedbackEl = document.querySelector('.feedback');
   const { rssUrl } = elements.fields;
-  const rssUrlContainer = elements.form.parentElement;
   rssUrl.classList.remove('is-invalid');
   if (feedbackEl) {
     feedbackEl.remove();
@@ -26,18 +27,17 @@ const removeError = (elements, feedbackEl) => {
 
 const renderErrors = (elements, errors, prevErrors, state) => {
   const error = errors.rssUrl;
-  const feedbackEl = document.querySelector('.feedback');
   const fieldHadError = has(prevErrors, 'rssUrl');
   const fieldHasError = has(errors, 'rssUrl');
   if (!fieldHadError && !fieldHasError) {
     return;
   }
   if (fieldHadError && !fieldHasError) {
-    removeError(elements, feedbackEl);
+    removeError(elements);
     return;
   }
   if (state.form.fieldsUi.touched.rssUrl && fieldHasError) {
-    renderError(elements, feedbackEl, error);
+    renderError(elements, error);
   }
 };
 
