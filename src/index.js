@@ -3,11 +3,19 @@ import 'bootstrap';
 
 import keyBy from 'lodash/keyBy.js';
 import * as yup from 'yup';
-import view from './view.js';
+import i18next from 'i18next';
+import resources from './locales/index.js';
+import watch from './view.js';
+
+yup.setLocale({
+  string: {
+    url: () => ({ key: 'errors.validate.not_valid_url' }),
+  },
+});
 
 const schema = yup.object().shape(
   {
-    rssUrl: yup.string().url('Ссылка должна быть валидным URL'),
+    rssUrl: yup.string().url(),
   },
 );
 const validate = (state) => schema.validate(state.form.fields, { abortEarly: false });
@@ -22,6 +30,7 @@ const defaultElements = {
 
 const defaultState = {
   form: {
+    lng: '',
     processState: 'filling',
     processError: null,
     valid: true,
@@ -37,24 +46,36 @@ const defaultState = {
   },
 };
 
-const app = (initialState, elements) => {
-  const state = view(initialState, elements);
+const app = (initialState, elements, i18n) => {
+  const watchedState = watch(initialState, elements, i18n);
+  watchedState.lng = i18n.lng;
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
     const { value } = elements.fields.rssUrl;
-    state.form.fields.rssUrl = value;
-    state.form.fieldsUi.touched.rssUrl = true;
-    validate(state)
+    watchedState.form.fields.rssUrl = value;
+    watchedState.form.fieldsUi.touched.rssUrl = true;
+    validate(watchedState)
       .then(() => {
-        state.form.errors = {};
-        state.form.valid = true;
+        watchedState.form.errors = {};
+        watchedState.form.valid = true;
       })
       .catch((errors) => {
-        state.form.errors = keyBy(errors.inner, 'path');
-        state.form.valid = false;
+        watchedState.form.errors = keyBy(errors.inner, 'path');
+        watchedState.form.valid = false;
       });
   });
 };
 
-app(defaultState, defaultElements);
+const initApp = (state, elements) => {
+  const i18nInstance = i18next.createInstance();
+  i18nInstance.init({
+    lng: 'ru',
+    debug: true,
+    resources,
+  });
+
+  app(state, elements, i18nInstance);
+};
+
+initApp(defaultState, defaultElements);

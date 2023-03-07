@@ -1,18 +1,34 @@
 import onChange from 'on-change';
 import has from 'lodash/has.js';
 
-const renderError = (elements, error) => {
+const renderText = (lng, i18n) => {
+  const textElemente = {
+    header: document.querySelector('h1'),
+    slogan: document.querySelector('p.lead'),
+    example: document.querySelector('p.text-muted'),
+    label: document.querySelector('label'),
+  };
+
+  i18n.changeLanguage(lng);
+
+  textElemente.header.textContent = i18n.t('text.header');
+  textElemente.slogan.textContent = i18n.t('text.slogan');
+  textElemente.example.textContent = i18n.t('text.example');
+  textElemente.label.textContent = i18n.t('text.label');
+};
+
+const renderError = (elements, error, i18n) => {
   const feedbackEl = document.querySelector('.feedback');
   const { rssUrl } = elements.fields;
   const rssUrlContainer = elements.form.parentElement;
   if (feedbackEl) {
-    feedbackEl.textContent = error.message;
+    feedbackEl.textContent = error.errors.map((e) => i18n.t(e.key));
     return;
   }
   rssUrl.classList.add('is-invalid');
   const newFeedbackEl = document.createElement('div');
   newFeedbackEl.classList.add('feedback', 'text-danger');
-  newFeedbackEl.textContent = error.message;
+  newFeedbackEl.textContent = error.errors.map((e) => i18n.t(e.key));
   rssUrlContainer.append(newFeedbackEl);
 };
 
@@ -25,7 +41,7 @@ const removeError = (elements) => {
   }
 };
 
-const renderErrors = (elements, errors, prevErrors, state) => {
+const renderErrors = (state, elements, errors, prevErrors, i18n) => {
   const error = errors.rssUrl;
   const fieldHadError = has(prevErrors, 'rssUrl');
   const fieldHasError = has(errors, 'rssUrl');
@@ -37,18 +53,21 @@ const renderErrors = (elements, errors, prevErrors, state) => {
     return;
   }
   if (state.form.fieldsUi.touched.rssUrl && fieldHasError) {
-    renderError(elements, error);
+    renderError(elements, error, i18n);
   }
 };
 
-const render = (state, elements) => (path, value, prevValue) => {
+const render = (state, elements, i18n) => (path, value, prevValue) => {
   switch (path) {
+    case 'lng':
+      renderText(value, i18n);
+      break;
     case 'form.processState':
       break;
     case 'form.valid':
       break;
     case 'form.errors': {
-      renderErrors(elements, value, prevValue, state);
+      renderErrors(state, elements, value, prevValue, i18n);
       break;
     }
     default:
@@ -56,4 +75,4 @@ const render = (state, elements) => (path, value, prevValue) => {
   }
 };
 
-export default (state, elements) => onChange(state, render(state, elements));
+export default (state, elements, i18next) => onChange(state, render(state, elements, i18next));
