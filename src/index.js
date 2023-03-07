@@ -2,23 +2,10 @@ import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap';
 
 import keyBy from 'lodash/keyBy.js';
-import * as yup from 'yup';
+import validate from './validator.js';
 import i18next from 'i18next';
 import resources from './locales/index.js';
 import watch from './view.js';
-
-yup.setLocale({
-  string: {
-    url: () => ({ key: 'errors.validate.not_valid_url' }),
-  },
-});
-
-const schema = yup.object().shape(
-  {
-    rssUrl: yup.string().url(),
-  },
-);
-const validate = (state) => schema.validate(state.form.fields, { abortEarly: false });
 
 const defaultElements = {
   form: document.querySelector('.rss-form'),
@@ -69,13 +56,13 @@ const app = (initialState, elements, i18n) => {
 
 const initApp = (state, elements) => {
   const i18nInstance = i18next.createInstance();
-  i18nInstance.init({
-    lng: 'ru',
-    debug: true,
-    resources,
-  });
-
-  app(state, elements, i18nInstance);
+  i18nInstance
+    .init({
+      lng: 'ru',
+      debug: true,
+      resources,
+    })
+    .then(() => app(state, elements, i18nInstance));
 };
 
 initApp(defaultState, defaultElements);
