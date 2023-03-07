@@ -1,9 +1,10 @@
-import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+// import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+import './styles.scss';
 import 'bootstrap';
 
 import keyBy from 'lodash/keyBy.js';
-import validate from './validator.js';
 import i18next from 'i18next';
+import validate from './validator.js';
 import resources from './locales/index.js';
 import watch from './view.js';
 
@@ -59,7 +60,6 @@ const initApp = (state, elements) => {
   i18nInstance
     .init({
       lng: 'ru',
-      debug: true,
       resources,
     })
     .then(() => app(state, elements, i18nInstance));
