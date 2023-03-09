@@ -4,6 +4,7 @@ import 'bootstrap';
 
 import keyBy from 'lodash/keyBy.js';
 import i18next from 'i18next';
+import axios from 'axios';
 import validate from './validator.js';
 import resources from './locales/index.js';
 import watch from './view.js';
@@ -16,7 +17,18 @@ const defaultElements = {
   },
 };
 
+// ```mermaid
+// stateDiagram-v2
+//     filling --> adding:valid
+//     adding --> succes:Feed added
+//     adding --> errors:Feed already exist, network errors
+//     errors --> filling
+//     succes --> filling
+// ```
+
 const defaultState = {
+  feeds: [],
+  posts: [],
   form: {
     lng: '',
     processState: 'filling',
@@ -31,12 +43,17 @@ const defaultState = {
         rssUrl: false,
       },
     },
-    feeds: [],
-    posts: [],
   },
 };
 
 const app = (initialState, elements, i18n) => {
+  fetch(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent('https://ru.hexlet.io/lessons.rss')}`)
+    .then((response) => {
+      if (response.ok) return response.json();
+      throw new Error('Network response was not ok.');
+    })
+    .then((data) => console.log(data.contents));
+
   const watchedState = watch(initialState, elements, i18n);
   watchedState.lng = i18n.lng;
 
