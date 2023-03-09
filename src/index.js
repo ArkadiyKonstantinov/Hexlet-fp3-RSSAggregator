@@ -31,6 +31,8 @@ const defaultState = {
         rssUrl: false,
       },
     },
+    feeds: [],
+    posts: [],
   },
 };
 
