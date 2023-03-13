@@ -3,8 +3,18 @@ export default {
     text: {
       header: 'RSS агрегатор',
       slogan: 'Начните читать RSS сегодня! Это легко, это красиво.',
-      example: 'Пример: https://ru.hexlet.io/lessons.rss',
+      example: 'Пример: http://lorem-rss.herokuapp.com/feed\nhttps://ru.hexlet.io/lessons.rss',
       label: 'Ссылка RSS',
+    },
+    feedback: {
+      error: {
+        alreadyExists: 'RSS уже существует',
+        netError: 'Ошибка сети',
+        parsingError: 'Ресурс не содержит валидный RSS',
+      },
+      success: {
+        feedAdded: 'RSS успешно загружен',
+      },
     },
     errors: {
       validate: {
