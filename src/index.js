@@ -5,16 +5,34 @@ import keyBy from 'lodash/keyBy.js';
 import uniqueId from 'lodash/uniqueId.js';
 import i18next from 'i18next';
 import axios from 'axios';
-import validate from './validator.js';
+// import validate from './validator.js';
+import * as yup from 'yup';
 import resources from './locales/index.js';
 import watch from './view.js';
 
-const getUrl = (rssUrl) => {
+const proxifyUrl = (rssUrl) => {
   const url = new URL('https://allorigins.hexlet.app/');
   url.pathname = '/get';
   url.search = `disableCache=true&url=${encodeURIComponent(rssUrl)}`;
   return url;
 };
+
+const validate = (state) => {
+  yup.setLocale({
+    string: {
+      url: () => ({ key: 'errors.validate.not_valid_url' }),
+    },
+  });
+
+  const schema = yup.object().shape(
+    {
+      rssUrl: yup.string().url(),
+    },
+  );
+
+  return schema.validate(state.form.fields, { abortEarly: false });
+};
+
 const pars = (XMLdata) => {
   const rss = new window.DOMParser().parseFromString(XMLdata, 'text/xml');
   if (!rss.querySelector('channel')) { throw new Error('error parse'); }
@@ -102,7 +120,7 @@ const app = (initialState, elements, i18n) => {
       })
       .then(() => {
         if (initialState.form.processState === 'adding') {
-          const url = getUrl(initialState.form.fields.rssUrl);
+          const url = proxifyUrl(initialState.form.fields.rssUrl);
           return axios.get(url)
             .then((response) => response.data.contents);
         }
