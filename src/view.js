@@ -1,5 +1,5 @@
 import onChange from 'on-change';
-import has from 'lodash/has.js';
+// import has from 'lodash/has.js';
 
 const renderText = (lng, i18n) => {
   const textElemente = {
@@ -17,20 +17,20 @@ const renderText = (lng, i18n) => {
   textElemente.label.textContent = i18n.t('text.label');
 };
 
-const renderError = (elements, error, i18n) => {
-  const feedbackEl = document.querySelector('.feedback');
-  const { rssUrl } = elements.fields;
-  const rssUrlContainer = elements.form.parentElement;
-  if (feedbackEl) {
-    feedbackEl.textContent = error.errors.map((e) => i18n.t(e.key));
-    return;
-  }
-  rssUrl.classList.add('is-invalid');
-  const newFeedbackEl = document.createElement('div');
-  newFeedbackEl.classList.add('feedback', 'text-danger');
-  newFeedbackEl.textContent = error.errors.map((e) => i18n.t(e.key));
-  rssUrlContainer.append(newFeedbackEl);
-};
+// const renderError = (elements, error, i18n) => {
+//   const feedbackEl = document.querySelector('.feedback');
+//   const { rssUrl } = elements.fields;
+//   const rssUrlContainer = elements.form.parentElement;
+//   if (feedbackEl) {
+//     feedbackEl.textContent = error.errors.map((e) => i18n.t(e.key));
+//     return;
+//   }
+//   rssUrl.classList.add('is-invalid');
+//   const newFeedbackEl = document.createElement('div');
+//   newFeedbackEl.classList.add('feedback', 'text-danger');
+//   newFeedbackEl.textContent = error.errors.map((e) => i18n.t(e.key));
+//   rssUrlContainer.append(newFeedbackEl);
+// };
 
 const renderFeedback = (feedback, i18n, elements) => {
   const feedbackEl = document.querySelector('.feedback');
@@ -45,30 +45,30 @@ const renderFeedback = (feedback, i18n, elements) => {
   fromContainer.append(newFeedbackEl);
 };
 
-const removeError = (elements) => {
-  const feedbackEl = document.querySelector('.feedback');
-  const { rssUrl } = elements.fields;
-  rssUrl.classList.remove('is-invalid');
-  if (feedbackEl) {
-    feedbackEl.remove();
-  }
-};
+// const removeError = (elements) => {
+//   const feedbackEl = document.querySelector('.feedback');
+//   const { rssUrl } = elements.fields;
+//   rssUrl.classList.remove('is-invalid');
+//   if (feedbackEl) {
+//     feedbackEl.remove();
+//   }
+// };
 
-const renderErrors = (state, elements, errors, prevErrors, i18n) => {
-  const error = errors.rssUrl;
-  const fieldHadError = has(prevErrors, 'rssUrl');
-  const fieldHasError = has(errors, 'rssUrl');
-  if (!fieldHadError && !fieldHasError) {
-    return;
-  }
-  if (fieldHadError && !fieldHasError) {
-    removeError(elements);
-    return;
-  }
-  if (state.form.fieldsUi.touched.rssUrl && fieldHasError) {
-    renderError(elements, error, i18n);
-  }
-};
+// const renderErrors = (state, elements, errors, prevErrors, i18n) => {
+//   const error = errors.rssUrl;
+//   const fieldHadError = has(prevErrors, 'rssUrl');
+//   const fieldHasError = has(errors, 'rssUrl');
+//   if (!fieldHadError && !fieldHasError) {
+//     return;
+//   }
+//   if (fieldHadError && !fieldHasError) {
+//     removeError(elements);
+//     return;
+//   }
+//   if (state.form.fieldsUi.touched.rssUrl && fieldHasError) {
+//     renderError(elements, error, i18n);
+//   }
+// };
 
 const renderFeeds = (state) => {
   const feedsList = document.createElement('ul');
@@ -175,7 +175,7 @@ const handleProcessState = (state, elements, i18n, processState) => {
   }
 };
 
-const render = (state, elements, i18n) => (path, value, prevValue) => {
+const render = (state, elements, i18n) => (path, value) => {
   switch (path) {
     case 'lng':
       renderText(value, i18n);
@@ -184,10 +184,11 @@ const render = (state, elements, i18n) => (path, value, prevValue) => {
       handleProcessState(state, elements, i18n, value);
       break;
     case 'form.valid':
+      renderFeedback(state.form.processFeedback, i18n, elements);
       break;
-    case 'form.errors':
-      renderErrors(state, elements, value, prevValue, i18n);
-      break;
+    // case 'form.errors':
+    //   renderErrors(state, elements, value, prevValue, i18n);
+    //   break;
     case 'feeds':
       renderFeeds(state);
       break;

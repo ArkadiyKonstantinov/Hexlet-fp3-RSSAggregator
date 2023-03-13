@@ -1,7 +1,7 @@
 import './styles.scss';
 import 'bootstrap';
 
-import keyBy from 'lodash/keyBy.js';
+// import keyBy from 'lodash/keyBy.js';
 import uniqueId from 'lodash/uniqueId.js';
 import i18next from 'i18next';
 import axios from 'axios';
@@ -20,7 +20,7 @@ const proxifyUrl = (rssUrl) => {
 const validate = (state) => {
   yup.setLocale({
     string: {
-      url: () => ({ key: 'errors.validate.not_valid_url' }),
+      url: () => ({ key: 'feedback.error.notValidURL', type: 'error' }),
     },
   });
 
@@ -35,7 +35,7 @@ const validate = (state) => {
 
 const pars = (XMLdata) => {
   const rss = new window.DOMParser().parseFromString(XMLdata, 'text/xml');
-  if (!rss.querySelector('channel')) { throw new Error('error parse'); }
+  if (!rss.querySelector('channel')) { throw new Error('Parse error!'); }
   const feed = {
     id: uniqueId(),
     title: rss.querySelector('title').textContent,
@@ -66,13 +66,13 @@ const defaultState = {
   form: {
     lng: '',
     processState: 'filling',
-    processError: null,
+    // processError: null,
     processFeedback: {
       key: '',
       type: '',
     },
     valid: true,
-    errors: {},
+    // errors: {},
     fields: {
       rssUrl: '',
     },
@@ -99,52 +99,49 @@ const app = (initialState, elements, i18n) => {
         watchedState.form.valid = true;
         watchedState.form.processState = 'adding';
       })
-      .catch((errors) => {
-        console.log('not valid!');
-        watchedState.form.errors = keyBy(errors.inner, 'path');
-        watchedState.form.valid = false;
-      })
       .then(() => {
-        if (initialState.form.processState === 'adding') {
-          const findFeed = initialState.feeds
-            .find((feed) => feed.url === watchedState.form.fields.rssUrl);
-          if (findFeed) {
-            throw new Error('Already exists!');
-          }
+        const findFeed = initialState.feeds
+          .find((feed) => feed.url === watchedState.form.fields.rssUrl);
+        if (findFeed) {
+          throw new Error('Already exists!');
         }
       })
-      .catch(() => {
-        console.log('already exists!');
-        watchedState.form.processFeedback = { key: 'feedback.error.alreadyExists', type: 'error' };
-        watchedState.form.processState = 'errors';
-      })
       .then(() => {
-        if (initialState.form.processState === 'adding') {
-          const url = proxifyUrl(initialState.form.fields.rssUrl);
-          return axios.get(url)
-            .then((response) => response.data.contents);
-        }
-      })
-      .catch(() => {
-        console.log('net error!');
-        watchedState.form.processFeedback = { key: 'feedback.error.netError', type: 'error' };
-        watchedState.form.processState = 'errors';
+        const url = proxifyUrl(initialState.form.fields.rssUrl);
+        return axios.get(url)
+          .then((response) => response.data.contents);
       })
       .then((contents) => {
-        if (initialState.form.processState === 'adding') {
-          const { feed, posts } = pars(contents);
-          feed.url = initialState.form.fields.rssUrl;
-          watchedState.feeds.push(feed);
-          watchedState.posts.push(...posts);
-          watchedState.form.processFeedback = { key: 'feedback.success.feedAdded', type: 'success' };
-          watchedState.form.processState = 'success';
-        }
+        const { feed, posts } = pars(contents);
+        feed.url = initialState.form.fields.rssUrl;
+        watchedState.feeds.push(feed);
+        watchedState.posts.push(...posts);
+        watchedState.form.processFeedback = { key: 'feedback.success.feedAdded', type: 'success' };
+        watchedState.form.processState = 'success';
       })
       .catch((error) => {
-        console.log('parse error!');
-        watchedState.form.processFeedback = { key: 'feedback.error.parsingError', tyep: 'error' };
-        watchedState.form.processState = 'errors';
-        throw error;
+        if (error.name === 'ValidationError') {
+          // watchedState.form.errors = keyBy(error.inner, 'path');
+          watchedState.form.processFeedback = error.message;
+          watchedState.form.valid = false;
+          console.dir(error);
+          throw error;
+        }
+        if (error.message === 'Already exists!') {
+          watchedState.form.processFeedback = { key: 'feedback.error.alreadyExists', type: 'error' };
+          watchedState.form.processState = 'errors';
+          throw error;
+        }
+        if (error.message === 'Network Error') {
+          watchedState.form.processFeedback = { key: 'feedback.error.netError', type: 'error' };
+          watchedState.form.processState = 'errors';
+          throw error;
+        }
+        if (error.message === 'Parse error!') {
+          watchedState.form.processFeedback = { key: 'feedback.error.parsingError', tyep: 'error' };
+          watchedState.form.processState = 'errors';
+          throw error;
+        }
       });
   });
 };

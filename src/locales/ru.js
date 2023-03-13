@@ -8,6 +8,7 @@ export default {
     },
     feedback: {
       error: {
+        notValidURL: 'Ссылка должна быть валидным URL',
         alreadyExists: 'RSS уже существует',
         netError: 'Ошибка сети',
         parsingError: 'Ресурс не содержит валидный RSS',
@@ -16,10 +17,10 @@ export default {
         feedAdded: 'RSS успешно загружен',
       },
     },
-    errors: {
-      validate: {
-        not_valid_url: 'Ссылка должна быть валидным URL',
-      },
-    },
+    // errors: {
+    //   validate: {
+    //     not_valid_url: 'Ссылка должна быть валидным URL',
+    //   },
+    // },
   },
 };
