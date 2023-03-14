@@ -39,8 +39,8 @@ const renderFeedback = (feedback, i18n, elements) => {
   if (feedbackEl) {
     feedbackEl.remove();
   }
-  const newFeedbackEl = document.createElement('div');
-  newFeedbackEl.classList.add('feedback', feedbackClass);
+  const newFeedbackEl = document.createElement('p');
+  newFeedbackEl.classList.add('feedback', 'm-0', 'position-absolute', 'small', feedbackClass);
   newFeedbackEl.textContent = i18n.t(feedback.key);
   fromContainer.append(newFeedbackEl);
 };

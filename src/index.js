@@ -33,13 +33,15 @@ const validate = (state) => {
   return schema.validate(state.form.fields, { abortEarly: false });
 };
 
-const pars = (XMLdata) => {
+const pars = (XMLdata, url) => {
   const rss = new window.DOMParser().parseFromString(XMLdata, 'text/xml');
   if (!rss.querySelector('channel')) { throw new Error('Parse error!'); }
   const feed = {
     id: uniqueId(),
+    url,
     title: rss.querySelector('title').textContent,
     description: rss.querySelector('description').textContent,
+    pubDate: new Date(rss.querySelector('pubDate').textContent),
   };
   const rssItems = Array.from(rss.querySelectorAll('item'));
   const posts = rssItems.map((item) => ({
@@ -48,8 +50,26 @@ const pars = (XMLdata) => {
     title: item.querySelector('title').textContent,
     description: item.querySelector('description').textContent,
     link: item.querySelector('link').textContent,
+    pubDate: new Date(item.querySelector('pubDate').textContent),
   }));
   return { feed, posts };
+};
+
+const updateFeeds = (state) => {
+  state.feeds.forEach((feed) => {
+    const url = proxifyUrl(feed.url);
+    axios.get(url)
+      .then((response) => pars(response.data.contents, feed.url))
+      .then(({ feed: newFeed, posts: newPosts }) => {
+        if (newFeed.pubDate > feed.pubDate) {
+          feed.pubDate = newFeed.pubDate;
+          const filtredPosts = newPosts.filter((post) => post.pubDate >= feed.pubDate);
+          state.posts.unshift(...filtredPosts);
+        }
+      })
+      .catch((error) => { throw error; })
+      .then(() => setTimeout(() => updateFeeds(state), 5000));
+  });
 };
 
 const defaultElements = {
@@ -112,13 +132,15 @@ const app = (initialState, elements, i18n) => {
           .then((response) => response.data.contents);
       })
       .then((contents) => {
-        const { feed, posts } = pars(contents);
-        feed.url = initialState.form.fields.rssUrl;
-        watchedState.feeds.push(feed);
-        watchedState.posts.push(...posts);
+        const url = initialState.form.fields.rssUrl;
+        const { feed, posts } = pars(contents, url);
+        watchedState.feeds.unshift(feed);
+        watchedState.posts.unshift(...posts);
         watchedState.form.processFeedback = { key: 'feedback.success.feedAdded', type: 'success' };
         watchedState.form.processState = 'success';
+        // console.dir(watchedState);
       })
+      .then(() => setTimeout(() => updateFeeds(watchedState), 5000))
       .catch((error) => {
         if (error.name === 'ValidationError') {
           // watchedState.form.errors = keyBy(error.inner, 'path');
@@ -142,6 +164,7 @@ const app = (initialState, elements, i18n) => {
           watchedState.form.processState = 'errors';
           throw error;
         }
+        throw error;
       });
   });
 };
