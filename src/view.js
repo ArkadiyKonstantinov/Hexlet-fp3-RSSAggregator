@@ -73,7 +73,7 @@ const renderFeedback = (feedback, i18n, elements) => {
 const renderFeeds = (state) => {
   const feedsList = document.createElement('ul');
   feedsList.classList.add('list-group', 'border-0', 'rounded-0');
-  state.feeds.forEach((feed) => {
+  state.feeds.feedItems.forEach((feed) => {
     const feedEl = document.createElement('li');
     feedEl.classList.add('list-group-item', 'border-0', 'border-end-0');
 
@@ -109,7 +109,7 @@ const renderFeeds = (state) => {
 const renderPosts = (state) => {
   const postsList = document.createElement('ul');
   postsList.classList.add('list-group', 'border-0', 'rounded-0');
-  state.posts.forEach((post) => {
+  state.posts.postItems.forEach((post) => {
     const postEl = document.createElement('li');
     postEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-item-start', 'border-0', 'border-end-0');
 
@@ -189,10 +189,10 @@ const render = (state, elements, i18n) => (path, value) => {
     // case 'form.errors':
     //   renderErrors(state, elements, value, prevValue, i18n);
     //   break;
-    case 'feeds':
+    case 'feeds.feedItems':
       renderFeeds(state);
       break;
-    case 'posts':
+    case 'posts.postItems':
       renderPosts(state);
       break;
     default:

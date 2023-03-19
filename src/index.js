@@ -1,11 +1,9 @@
 import './styles.scss';
 import 'bootstrap';
 
-// import keyBy from 'lodash/keyBy.js';
 import uniqueId from 'lodash/uniqueId.js';
 import i18next from 'i18next';
 import axios from 'axios';
-// import validate from './validator.js';
 import * as yup from 'yup';
 import resources from './locales/index.js';
 import watch from './view.js';
@@ -51,25 +49,26 @@ const pars = (XMLdata, url) => {
     description: item.querySelector('description').textContent,
     link: item.querySelector('link').textContent,
     pubDate: new Date(item.querySelector('pubDate').textContent),
+    read: false,
   }));
   return { feed, posts };
 };
 
-const updateFeeds = (state) => {
-  state.feeds.forEach((feed) => {
-    const url = proxifyUrl(feed.url);
-    axios.get(url)
-      .then((response) => pars(response.data.contents, feed.url))
-      .then(({ feed: newFeed, posts: newPosts }) => {
-        if (newFeed.pubDate > feed.pubDate) {
-          feed.pubDate = newFeed.pubDate;
-          const filtredPosts = newPosts.filter((post) => post.pubDate >= feed.pubDate);
-          state.posts.unshift(...filtredPosts);
-        }
-      })
-      .catch((error) => { throw error; })
-      .then(() => setTimeout(() => updateFeeds(state), 5000));
-  });
+const updateFeed = (feed, state) => {
+  const url = proxifyUrl(feed.url);
+  axios.get(url)
+    .then((response) => pars(response.data.contents, feed.url))
+    .then(({ posts: newPosts }) => {
+      const feedUpdateDate = state.feeds.feedUpdateDates.find((item) => item.id === feed.id);
+      const lastUpdateDate = feedUpdateDate.date;
+      const filtredPosts = newPosts.filter((item) => item.pubDate > lastUpdateDate);
+      if (filtredPosts) {
+        state.posts.postItems.unshift(...filtredPosts);
+        feedUpdateDate.date = new Date();
+      }
+    })
+    .then(() => setTimeout(() => updateFeed(feed, state), 5000))
+    .catch((error) => { throw error; });
 };
 
 const defaultElements = {
@@ -81,18 +80,22 @@ const defaultElements = {
 };
 
 const defaultState = {
-  feeds: [],
-  posts: [],
+  feeds: {
+    feedUpdateDates: [],
+    feedItems: [],
+  },
+  posts: {
+    readStateUI: [],
+    postItems: [],
+  },
   form: {
     lng: '',
     processState: 'filling',
-    // processError: null,
     processFeedback: {
       key: '',
       type: '',
     },
     valid: true,
-    // errors: {},
     fields: {
       rssUrl: '',
     },
@@ -120,7 +123,7 @@ const app = (initialState, elements, i18n) => {
         watchedState.form.processState = 'adding';
       })
       .then(() => {
-        const findFeed = initialState.feeds
+        const findFeed = initialState.feeds.feedItems
           .find((feed) => feed.url === watchedState.form.fields.rssUrl);
         if (findFeed) {
           throw new Error('Already exists!');
@@ -134,13 +137,16 @@ const app = (initialState, elements, i18n) => {
       .then((contents) => {
         const url = initialState.form.fields.rssUrl;
         const { feed, posts } = pars(contents, url);
-        watchedState.feeds.unshift(feed);
-        watchedState.posts.unshift(...posts);
+        watchedState.feeds.feedUpdateDates.unshift({ id: feed.id, date: new Date() });
+        watchedState.feeds.feedItems.unshift(feed);
+        posts.forEach((post) => watchedState.posts.readStateUI
+          .unshift({ postId: post.postId, read: false }));
+        watchedState.posts.postItems.unshift(...posts);
         watchedState.form.processFeedback = { key: 'feedback.success.feedAdded', type: 'success' };
         watchedState.form.processState = 'success';
-        // console.dir(watchedState);
+        return feed;
       })
-      .then(() => setTimeout(() => updateFeeds(watchedState), 5000))
+      .then((feed) => updateFeed(feed, watchedState))
       .catch((error) => {
         if (error.name === 'ValidationError') {
           // watchedState.form.errors = keyBy(error.inner, 'path');
