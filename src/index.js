@@ -152,23 +152,23 @@ const app = (initialState, elements, i18n) => {
           watchedState.form.valid = false;
           console.dir(error);
           throw error;
-        }
-        if (error.message === 'Already exists!') {
-          watchedState.form.processFeedback = { key: 'feedback.error.alreadyExists', type: 'error' };
+        } else {
+          switch (error.message) {
+            case 'Already exists':
+              watchedState.form.processFeedback = { key: 'feedback.error.alreadyExists', type: 'error' };
+              break;
+            case 'Network Error':
+              watchedState.form.processFeedback = { key: 'feedback.error.netError', type: 'error' };
+              break;
+            case 'Parse error!':
+              watchedState.form.processFeedback = { key: 'feedback.error.parsingError', tyep: 'error' };
+              break;
+            default:
+              throw error;
+          }
           watchedState.form.processState = 'errors';
           throw error;
         }
-        if (error.message === 'Network Error') {
-          watchedState.form.processFeedback = { key: 'feedback.error.netError', type: 'error' };
-          watchedState.form.processState = 'errors';
-          throw error;
-        }
-        if (error.message === 'Parse error!') {
-          watchedState.form.processFeedback = { key: 'feedback.error.parsingError', tyep: 'error' };
-          watchedState.form.processState = 'errors';
-          throw error;
-        }
-        throw error;
       });
   });
 };
