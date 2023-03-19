@@ -31,40 +31,30 @@ const validate = (state) => {
   return schema.validate(state.form.fields, { abortEarly: false });
 };
 
-const pars = (XMLdata, url) => {
+const pars = (XMLdata) => {
   const rss = new window.DOMParser().parseFromString(XMLdata, 'text/xml');
   if (!rss.querySelector('channel')) { throw new Error('Parse error!'); }
-  const feed = {
-    id: uniqueId(),
-    url,
+
+  return {
     title: rss.querySelector('title').textContent,
     description: rss.querySelector('description').textContent,
-    pubDate: new Date(rss.querySelector('pubDate').textContent),
+    items: [...rss.querySelectorAll('item')].map((item) => ({
+      title: item.querySelector('title').textContent,
+      link: item.querySelector('link').textContent,
+      description: item.querySelector('description').textContent,
+    })),
   };
-  const rssItems = Array.from(rss.querySelectorAll('item'));
-  const posts = rssItems.map((item) => ({
-    id: feed.id,
-    postId: uniqueId(),
-    title: item.querySelector('title').textContent,
-    description: item.querySelector('description').textContent,
-    link: item.querySelector('link').textContent,
-    pubDate: new Date(item.querySelector('pubDate').textContent),
-    read: false,
-  }));
-  return { feed, posts };
 };
 
 const updateFeed = (feed, state) => {
   const url = proxifyUrl(feed.url);
   axios.get(url)
-    .then((response) => pars(response.data.contents, feed.url))
-    .then(({ posts: newPosts }) => {
-      const feedUpdateDate = state.feeds.feedUpdateDates.find((item) => item.id === feed.id);
-      const lastUpdateDate = feedUpdateDate.date;
-      const filtredPosts = newPosts.filter((item) => item.pubDate > lastUpdateDate);
-      if (filtredPosts) {
-        state.posts.postItems.unshift(...filtredPosts);
-        feedUpdateDate.date = new Date();
+    .then((response) => pars(response.data.contents))
+    .then((parsedData) => {
+      const filtred = parsedData.items
+        .filter((item) => !state.posts.find((post) => post.title === item.title));
+      if (filtred) {
+        state.posts.unshift(...filtred);
       }
     })
     .then(() => setTimeout(() => updateFeed(feed, state), 5000))
@@ -79,14 +69,15 @@ const defaultElements = {
   },
 };
 
+// const watchPost = () => {
+
+// };
+
 const defaultState = {
-  feeds: {
-    feedUpdateDates: [],
-    feedItems: [],
-  },
-  posts: {
-    readStateUI: [],
-    postItems: [],
+  feeds: [],
+  posts: [],
+  stateUi: {
+    readPosts: [],
   },
   form: {
     lng: '',
@@ -123,7 +114,7 @@ const app = (initialState, elements, i18n) => {
         watchedState.form.processState = 'adding';
       })
       .then(() => {
-        const findFeed = initialState.feeds.feedItems
+        const findFeed = initialState.feeds
           .find((feed) => feed.url === watchedState.form.fields.rssUrl);
         if (findFeed) {
           throw new Error('Already exists!');
@@ -136,12 +127,20 @@ const app = (initialState, elements, i18n) => {
       })
       .then((contents) => {
         const url = initialState.form.fields.rssUrl;
-        const { feed, posts } = pars(contents, url);
-        watchedState.feeds.feedUpdateDates.unshift({ id: feed.id, date: new Date() });
-        watchedState.feeds.feedItems.unshift(feed);
-        posts.forEach((post) => watchedState.posts.readStateUI
-          .unshift({ postId: post.postId, read: false }));
-        watchedState.posts.postItems.unshift(...posts);
+        const parsedData = pars(contents);
+        const feed = {
+          feedId: uniqueId(),
+          url,
+          title: parsedData.title,
+          description: parsedData.title,
+        };
+        const posts = parsedData.items.map((item) => ({
+          feedId: feed.feedId,
+          postId: uniqueId(),
+          ...item,
+        }));
+        watchedState.feeds.unshift(feed);
+        watchedState.posts.unshift(...posts);
         watchedState.form.processFeedback = { key: 'feedback.success.feedAdded', type: 'success' };
         watchedState.form.processState = 'success';
         return feed;
@@ -149,7 +148,6 @@ const app = (initialState, elements, i18n) => {
       .then((feed) => updateFeed(feed, watchedState))
       .catch((error) => {
         if (error.name === 'ValidationError') {
-          // watchedState.form.errors = keyBy(error.inner, 'path');
           watchedState.form.processFeedback = error.message;
           watchedState.form.valid = false;
           console.dir(error);

@@ -73,7 +73,7 @@ const renderFeedback = (feedback, i18n, elements) => {
 const renderFeeds = (state) => {
   const feedsList = document.createElement('ul');
   feedsList.classList.add('list-group', 'border-0', 'rounded-0');
-  state.feeds.feedItems.forEach((feed) => {
+  state.feeds.forEach((feed) => {
     const feedEl = document.createElement('li');
     feedEl.classList.add('list-group-item', 'border-0', 'border-end-0');
 
@@ -109,12 +109,14 @@ const renderFeeds = (state) => {
 const renderPosts = (state) => {
   const postsList = document.createElement('ul');
   postsList.classList.add('list-group', 'border-0', 'rounded-0');
-  state.posts.postItems.forEach((post) => {
+  state.posts.forEach((post) => {
     const postEl = document.createElement('li');
     postEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-item-start', 'border-0', 'border-end-0');
 
     const postTitle = document.createElement('a');
-    postTitle.classList.add('fw-bold');
+    const isRead = state.stateUi.readPosts.find((item) => item.postId === post.postId);
+    const postIitleClasses = isRead ? ['fw-normal', 'link-secondary'] : ['fw-bold'];
+    postTitle.classList.add(...postIitleClasses);
     postTitle.href = post.link;
     postTitle.setAttribute('data-id', post.postId);
     postTitle.setAttribute('target', '_blank');
@@ -125,6 +127,7 @@ const renderPosts = (state) => {
     postButton.classList.add('btn', 'btn-outline-primary', 'btn-sm');
     postButton.type = 'button';
     postButton.setAttribute('data-id', post.postId);
+    postButton.setAttribute('data-bs-toggle', 'modal');
     postButton.setAttribute('data-bs-target', '#modal');
     postButton.textContent = 'Просмотр';
 
@@ -189,10 +192,13 @@ const render = (state, elements, i18n) => (path, value) => {
     // case 'form.errors':
     //   renderErrors(state, elements, value, prevValue, i18n);
     //   break;
-    case 'feeds.feedItems':
+    case 'feeds':
       renderFeeds(state);
       break;
-    case 'posts.postItems':
+    case 'posts':
+      renderPosts(state);
+      break;
+    case 'stateUi.readPosts':
       renderPosts(state);
       break;
     default:
