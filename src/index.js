@@ -52,7 +52,8 @@ const updateFeed = (feed, state) => {
     .then((response) => pars(response.data.contents))
     .then((parsedData) => {
       const filtred = parsedData.items
-        .filter((item) => !state.posts.find((post) => post.title === item.title));
+        .filter((item) => !state.posts.find((post) => post.title === item.title))
+        .map((item) => ({ ...item, feedId: feed.feedId, postId: uniqueId() }));
       if (filtred) {
         state.posts.unshift(...filtred);
       }
@@ -64,19 +65,17 @@ const updateFeed = (feed, state) => {
 const defaultElements = {
   form: document.querySelector('.rss-form'),
   submitButton: document.querySelector('[type="submit"]'),
+  postsContainer: document.querySelector('.posts'),
   fields: {
     rssUrl: document.getElementById('url-input'),
   },
 };
 
-// const watchPost = () => {
-
-// };
-
 const defaultState = {
   feeds: [],
   posts: [],
   stateUi: {
+    modalPostId: null,
     readPosts: [],
   },
   form: {
@@ -170,6 +169,15 @@ const app = (initialState, elements, i18n) => {
           throw error;
         }
       });
+  });
+
+  elements.postsContainer.addEventListener('click', (e) => {
+    const { id } = e.target.dataset;
+    if (!id) {
+      return;
+    }
+    watchedState.stateUi.modalPostId = id;
+    watchedState.stateUi.readPosts.push(id);
   });
 };
 

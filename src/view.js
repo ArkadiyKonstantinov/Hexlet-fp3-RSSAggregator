@@ -1,5 +1,4 @@
 import onChange from 'on-change';
-// import has from 'lodash/has.js';
 
 const renderText = (lng, i18n) => {
   const textElemente = {
@@ -17,21 +16,6 @@ const renderText = (lng, i18n) => {
   textElemente.label.textContent = i18n.t('text.label');
 };
 
-// const renderError = (elements, error, i18n) => {
-//   const feedbackEl = document.querySelector('.feedback');
-//   const { rssUrl } = elements.fields;
-//   const rssUrlContainer = elements.form.parentElement;
-//   if (feedbackEl) {
-//     feedbackEl.textContent = error.errors.map((e) => i18n.t(e.key));
-//     return;
-//   }
-//   rssUrl.classList.add('is-invalid');
-//   const newFeedbackEl = document.createElement('div');
-//   newFeedbackEl.classList.add('feedback', 'text-danger');
-//   newFeedbackEl.textContent = error.errors.map((e) => i18n.t(e.key));
-//   rssUrlContainer.append(newFeedbackEl);
-// };
-
 const renderFeedback = (feedback, i18n, elements) => {
   const feedbackEl = document.querySelector('.feedback');
   const fromContainer = elements.form.parentElement;
@@ -44,31 +28,6 @@ const renderFeedback = (feedback, i18n, elements) => {
   newFeedbackEl.textContent = i18n.t(feedback.key);
   fromContainer.append(newFeedbackEl);
 };
-
-// const removeError = (elements) => {
-//   const feedbackEl = document.querySelector('.feedback');
-//   const { rssUrl } = elements.fields;
-//   rssUrl.classList.remove('is-invalid');
-//   if (feedbackEl) {
-//     feedbackEl.remove();
-//   }
-// };
-
-// const renderErrors = (state, elements, errors, prevErrors, i18n) => {
-//   const error = errors.rssUrl;
-//   const fieldHadError = has(prevErrors, 'rssUrl');
-//   const fieldHasError = has(errors, 'rssUrl');
-//   if (!fieldHadError && !fieldHasError) {
-//     return;
-//   }
-//   if (fieldHadError && !fieldHasError) {
-//     removeError(elements);
-//     return;
-//   }
-//   if (state.form.fieldsUi.touched.rssUrl && fieldHasError) {
-//     renderError(elements, error, i18n);
-//   }
-// };
 
 const renderFeeds = (state) => {
   const feedsList = document.createElement('ul');
@@ -114,7 +73,7 @@ const renderPosts = (state) => {
     postEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-item-start', 'border-0', 'border-end-0');
 
     const postTitle = document.createElement('a');
-    const isRead = state.stateUi.readPosts.find((item) => item.postId === post.postId);
+    const isRead = state.stateUi.readPosts.includes(post.postId);
     const postIitleClasses = isRead ? ['fw-normal', 'link-secondary'] : ['fw-bold'];
     postTitle.classList.add(...postIitleClasses);
     postTitle.href = post.link;
@@ -150,6 +109,14 @@ const renderPosts = (state) => {
   const oldPostsCard = postsContainer.querySelector('.card');
   if (oldPostsCard) { oldPostsCard.remove(); }
   postsContainer.append(postsCard);
+};
+
+const renderModal = (state) => {
+  const modalEl = document.querySelector('.modal');
+  const modalPost = state.posts.find((post) => post.postId === state.stateUi.modalPostId);
+  modalEl.querySelector('.modal-title').textContent = modalPost.title;
+  modalEl.querySelector('.modal-body').textContent = modalPost.description;
+  modalEl.querySelector('.full-article').href = modalPost.link;
 };
 
 const handleProcessState = (state, elements, i18n, processState) => {
@@ -189,9 +156,6 @@ const render = (state, elements, i18n) => (path, value) => {
     case 'form.valid':
       renderFeedback(state.form.processFeedback, i18n, elements);
       break;
-    // case 'form.errors':
-    //   renderErrors(state, elements, value, prevValue, i18n);
-    //   break;
     case 'feeds':
       renderFeeds(state);
       break;
@@ -200,6 +164,9 @@ const render = (state, elements, i18n) => (path, value) => {
       break;
     case 'stateUi.readPosts':
       renderPosts(state);
+      break;
+    case 'stateUi.modalPostId':
+      renderModal(state);
       break;
     default:
       break;
