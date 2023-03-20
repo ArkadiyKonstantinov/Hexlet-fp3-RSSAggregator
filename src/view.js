@@ -65,7 +65,7 @@ const renderFeeds = (state) => {
   feedsContainer.append(feedsCard);
 };
 
-const renderPosts = (state) => {
+const renderPosts = (state, i18n) => {
   const postsList = document.createElement('ul');
   postsList.classList.add('list-group', 'border-0', 'rounded-0');
   state.posts.forEach((post) => {
@@ -82,15 +82,15 @@ const renderPosts = (state) => {
     postTitle.rel = 'noopener noreferrer';
     postTitle.textContent = post.title;
 
-    const postButton = document.createElement('button');
-    postButton.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-    postButton.type = 'button';
-    postButton.setAttribute('data-id', post.postId);
-    postButton.setAttribute('data-bs-toggle', 'modal');
-    postButton.setAttribute('data-bs-target', '#modal');
-    postButton.textContent = 'Просмотр';
+    const readButton = document.createElement('button');
+    readButton.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+    readButton.type = 'button';
+    readButton.setAttribute('data-id', post.postId);
+    readButton.setAttribute('data-bs-toggle', 'modal');
+    readButton.setAttribute('data-bs-target', '#modal');
+    readButton.textContent = i18n.t('text.readButton');
 
-    postEl.append(postTitle, postButton);
+    postEl.append(postTitle, readButton);
     postsList.append(postEl);
   });
 
@@ -160,10 +160,10 @@ const render = (state, elements, i18n) => (path, value) => {
       renderFeeds(state);
       break;
     case 'posts':
-      renderPosts(state);
+      renderPosts(state, i18n);
       break;
     case 'stateUi.readPosts':
-      renderPosts(state);
+      renderPosts(state, i18n);
       break;
     case 'stateUi.modalPostId':
       renderModal(state);
