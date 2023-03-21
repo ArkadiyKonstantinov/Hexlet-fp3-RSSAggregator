@@ -30,7 +30,7 @@ const validate = (state, url) => {
   return schema.validate(url);
 };
 
-const pars = (XMLdata) => {
+const parse = (XMLdata) => {
   const rss = new window.DOMParser().parseFromString(XMLdata, 'text/xml');
   if (rss.querySelector('parsererror')) { throw new Error('Parse error!'); }
 
@@ -48,7 +48,7 @@ const pars = (XMLdata) => {
 const updateFeed = (feed, state) => {
   const url = proxifyUrl(feed.url);
   axios.get(url)
-    .then((response) => pars(response.data.contents))
+    .then((response) => parse(response.data.contents))
     .then((parsedData) => {
       const newPosts = parsedData.items
         .filter((item) => !state.posts.find((post) => post.title === item.title))
@@ -103,7 +103,7 @@ const app = (initialState, elements, i18n) => {
       })
       .then(() => axios.get(proxifyUrl(url)).then((response) => response.data.contents))
       .then((contents) => {
-        const parsedData = pars(contents);
+        const parsedData = parse(contents);
         const feed = {
           feedId: uniqueId(),
           url,
