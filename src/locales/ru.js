@@ -5,8 +5,10 @@ export default {
       slogan: 'Начните читать RSS сегодня! Это легко, это красиво.',
       example: 'Пример: 1. http://lorem-rss.herokuapp.com/feed 2. https://ru.hexlet.io/lessons.rss',
       label: 'Ссылка RSS',
+      posts: 'Посты',
+      feeds: 'Фиды',
       submitButton: 'Добавить',
-      readButton: 'Просмотре',
+      readButton: 'Просмотр',
     },
     feedback: {
       error: {

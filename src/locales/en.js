@@ -5,8 +5,10 @@ export default {
       slogan: 'Start reading RSS today! It\'s easy, it\'s beautiful.',
       example: 'Example: https://ru.hexlet.io/lessons.rss',
       label: 'RSS link',
+      posts: 'Posts',
+      feeds: 'Feeds',
       submitButton: 'Add',
-      readButton: 'View',
+      readButton: 'Preview',
     },
     feedback: {
       error: {

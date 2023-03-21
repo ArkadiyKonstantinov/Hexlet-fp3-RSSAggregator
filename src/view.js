@@ -36,7 +36,7 @@ const renderFeedback = (feedback, i18n, elements) => {
   fromContainer.append(newFeedbackEl);
 };
 
-const renderFeeds = (state) => {
+const renderFeeds = (state, i18n) => {
   const feedsList = document.createElement('ul');
   feedsList.classList.add('list-group', 'border-0', 'rounded-0');
   state.feeds.forEach((feed) => {
@@ -61,7 +61,7 @@ const renderFeeds = (state) => {
   feedCardBody.classList.add('card-body');
   const feedBodyTitle = document.createElement('h2');
   feedBodyTitle.classList.add('card-title', 'h4');
-  feedBodyTitle.textContent = 'Фиды';
+  feedBodyTitle.textContent = i18n.t('text.feeds');
 
   feedCardBody.append(feedBodyTitle);
   feedsCard.append(feedCardBody, feedsList);
@@ -107,7 +107,7 @@ const renderPosts = (state, i18n) => {
   postCardBody.classList.add('card-body');
   const postBodyTitle = document.createElement('h2');
   postBodyTitle.classList.add('card-title', 'h4');
-  postBodyTitle.textContent = 'Посты';
+  postBodyTitle.textContent = i18n.t('text.posts');
 
   postCardBody.append(postBodyTitle);
   postsCard.append(postCardBody, postsList);
@@ -154,7 +154,7 @@ const render = (state, elements, i18n) => (path, value) => {
   switch (path) {
     case 'lng':
       renderText(value, i18n);
-      renderPosts(state, i18n);
+      // renderPosts(state, i18n);
       break;
     case 'form.processState':
       handleProcessState(state, elements, i18n, value);
@@ -163,7 +163,7 @@ const render = (state, elements, i18n) => (path, value) => {
       renderFeedback(state.form.processFeedback, i18n, elements);
       break;
     case 'feeds':
-      renderFeeds(state);
+      renderFeeds(state, i18n);
       break;
     case 'posts':
       renderPosts(state, i18n);
