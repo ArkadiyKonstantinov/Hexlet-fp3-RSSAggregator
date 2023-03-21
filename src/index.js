@@ -9,9 +9,10 @@ import resources from './locales/index.js';
 import watch from './view.js';
 
 const proxifyUrl = (rssUrl) => {
-  const url = new URL('https://allorigins.hexlet.app/');
-  url.pathname = '/get';
-  url.search = `disableCache=true&url=${encodeURIComponent(rssUrl)}`;
+  const url = new URL('/get', 'https://allorigins.hexlet.app/');
+  url.searchParams.set('disableCache', true);
+  url.searchParams.set('url', rssUrl);
+  console.dir(url);
   return url;
 };
 
