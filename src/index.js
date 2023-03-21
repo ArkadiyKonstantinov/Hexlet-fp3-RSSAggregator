@@ -12,7 +12,6 @@ const proxifyUrl = (rssUrl) => {
   const url = new URL('/get', 'https://allorigins.hexlet.app/');
   url.searchParams.set('disableCache', true);
   url.searchParams.set('url', rssUrl);
-  console.dir(url);
   return url;
 };
 
@@ -64,6 +63,7 @@ const updateFeed = (feed, state) => {
 
 const defaultElements = {
   form: document.querySelector('.rss-form'),
+  urlInput: document.getElementById('url-input'),
   submitButton: document.querySelector('[type="submit"]'),
   feedsContainer: document.querySelector('.feeds'),
   postsContainer: document.querySelector('.posts'),
@@ -96,7 +96,7 @@ const app = (initialState, elements, i18n) => {
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
-    const url = elements.fields.rssUrl.value;
+    const url = elements.urlInput.value;
     validate(watchedState, url)
       .then(() => {
         watchedState.form.processState = 'adding';
@@ -118,7 +118,7 @@ const app = (initialState, elements, i18n) => {
         watchedState.feeds.unshift(feed);
         watchedState.posts.unshift(...posts);
         watchedState.form.processFeedback = { key: 'feedback.success.feedAdded', type: 'success' };
-        watchedState.form.processState = 'success';
+        watchedState.form.processState = 'filling';
         return feed;
       })
       .then((feed) => updateFeed(feed, watchedState))
@@ -131,7 +131,7 @@ const app = (initialState, elements, i18n) => {
           ['Parse error!', { key: 'feedback.error.parsingError', type: 'error' }],
         ]);
         watchedState.form.processFeedback = errorsMap.get(error.message);
-        watchedState.form.processState = 'errors';
+        watchedState.form.processState = 'failed';
         console.dir(error);
       });
   });

@@ -24,7 +24,6 @@ const renderFeedback = (feedback, i18n, elements) => {
   }
   const newFeedbackEl = document.createElement('p');
   newFeedbackEl.classList.add('feedback', 'm-0', 'position-absolute', 'small');
-  newFeedbackEl.textContent = i18n.t(feedback.key);
   if (feedback.type === 'error') {
     elements.fields.rssUrl.classList.add('is-invalid');
     newFeedbackEl.classList.add('text-danger');
@@ -33,6 +32,7 @@ const renderFeedback = (feedback, i18n, elements) => {
     elements.fields.rssUrl.classList.remove('is-invalid');
     newFeedbackEl.classList.add('text-success');
   }
+  newFeedbackEl.textContent = i18n.t(feedback.key);
   fromContainer.append(newFeedbackEl);
 };
 
@@ -129,21 +129,19 @@ const renderModal = (state) => {
 const handleProcessState = (state, elements, i18n, processState) => {
   switch (processState) {
     case 'filling':
+      elements.fields.rssUrl.classList.remove('disabled');
+      elements.submitButton.classList.remove('disabled');
+      elements.form.reset();
+      elements.fields.rssUrl.focus();
+      renderFeedback(state.form.processFeedback, i18n, elements);
       break;
     case 'adding':
       elements.fields.rssUrl.classList.add('disabled');
       elements.submitButton.classList.add('disabled');
       break;
-    case 'errors':
+    case 'failed':
       elements.fields.rssUrl.classList.remove('disabled');
       elements.submitButton.classList.remove('disabled');
-      elements.fields.rssUrl.focus();
-      renderFeedback(state.form.processFeedback, i18n, elements);
-      break;
-    case 'success':
-      elements.fields.rssUrl.classList.remove('disabled');
-      elements.submitButton.classList.remove('disabled');
-      elements.form.reset();
       elements.fields.rssUrl.focus();
       renderFeedback(state.form.processFeedback, i18n, elements);
       break;
