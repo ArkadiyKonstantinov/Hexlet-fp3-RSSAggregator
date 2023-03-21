@@ -11,6 +11,6 @@ test:
 	npm test
 
 lint:
-	npx eslint ./src/.
+	npx eslint .
 
 .PHONY: test

@@ -37,7 +37,6 @@
     "style-loader": "^3.3.1",
     "url-loader": "^4.1.1",
     "webpack": "^5.75.0",
-    "webpack-add-dependency-plugin": "^0.1.2",
     "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^4.11.1",
     "webpack-plugin-serve": "^1.6.0"
@@ -52,6 +51,7 @@
     "lodash": "^4.17.21",
     "mini-css-extract-plugin": "^2.7.5",
     "on-change": "^4.0.2",
-    "yup": "^1.0.2"
+    "yup": "^1.0.2",
+    "webpack-add-dependency-plugin": "^0.1.2"
   }
 }
