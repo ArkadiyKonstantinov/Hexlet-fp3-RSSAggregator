@@ -108,7 +108,7 @@ const app = (initialState, elements, i18n) => {
           feedId: uniqueId(),
           url,
           title: parsedData.title,
-          description: parsedData.title,
+          description: parsedData.description,
         };
         const posts = parsedData.items.map((item) => ({
           feedId: feed.feedId,
