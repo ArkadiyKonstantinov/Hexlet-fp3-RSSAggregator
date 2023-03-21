@@ -16,23 +16,22 @@ const renderText = (lng, i18n) => {
   textElemente.label.textContent = i18n.t('text.label');
 };
 
-const renderFeedback = (feedback, i18n, elements) => {
+const renderFeedback = (state, i18n, elements) => {
   const feedbackEl = document.querySelector('.feedback');
   const fromContainer = elements.form.parentElement;
-  if (feedbackEl) {
-    feedbackEl.remove();
-  }
+  if (feedbackEl) { feedbackEl.remove(); }
+
   const newFeedbackEl = document.createElement('p');
   newFeedbackEl.classList.add('feedback', 'm-0', 'position-absolute', 'small');
-  if (feedback.type === 'error') {
+  if (state.form.processFeedback.type === 'error') {
     elements.fields.rssUrl.classList.add('is-invalid');
     newFeedbackEl.classList.add('text-danger');
   }
-  if (feedback.type === 'success') {
+  if (state.form.processFeedback.type === 'success') {
     elements.fields.rssUrl.classList.remove('is-invalid');
     newFeedbackEl.classList.add('text-success');
   }
-  newFeedbackEl.textContent = i18n.t(feedback.key);
+  newFeedbackEl.textContent = i18n.t(state.form.processFeedback.key);
   fromContainer.append(newFeedbackEl);
 };
 
@@ -75,14 +74,15 @@ const renderFeeds = (state, i18n) => {
 const renderPosts = (state, i18n) => {
   const postsList = document.createElement('ul');
   postsList.classList.add('list-group', 'border-0', 'rounded-0');
+
   state.posts.forEach((post) => {
     const postEl = document.createElement('li');
     postEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-item-start', 'border-0', 'border-end-0');
 
     const postTitle = document.createElement('a');
     const isRead = state.ui.readPosts.includes(post.postId);
-    const postIitleClasses = isRead ? ['fw-normal', 'link-secondary'] : ['fw-bold'];
-    postTitle.classList.add(...postIitleClasses);
+    const postTitleClasses = isRead ? ['fw-normal', 'link-secondary'] : ['fw-bold'];
+    postTitle.classList.add(...postTitleClasses);
     postTitle.href = post.link;
     postTitle.setAttribute('data-id', post.postId);
     postTitle.setAttribute('target', '_blank');
@@ -133,7 +133,7 @@ const handleProcessState = (state, elements, i18n, processState) => {
       elements.submitButton.classList.remove('disabled');
       elements.form.reset();
       elements.fields.rssUrl.focus();
-      renderFeedback(state.form.processFeedback, i18n, elements);
+      renderFeedback(state, i18n, elements);
       break;
     case 'adding':
       elements.fields.rssUrl.classList.add('disabled');
@@ -143,7 +143,7 @@ const handleProcessState = (state, elements, i18n, processState) => {
       elements.fields.rssUrl.classList.remove('disabled');
       elements.submitButton.classList.remove('disabled');
       elements.fields.rssUrl.focus();
-      renderFeedback(state.form.processFeedback, i18n, elements);
+      renderFeedback(state, i18n, elements);
       break;
     default:
       break;
@@ -154,13 +154,12 @@ const render = (state, elements, i18n) => (path, value) => {
   switch (path) {
     case 'lng':
       renderText(value, i18n);
-      // renderPosts(state, i18n);
       break;
     case 'form.processState':
       handleProcessState(state, elements, i18n, value);
       break;
     case 'form.processFeedback':
-      renderFeedback(state.form.processFeedback, i18n, elements);
+      renderFeedback(state, i18n, elements);
       break;
     case 'feeds':
       renderFeeds(state, i18n);
