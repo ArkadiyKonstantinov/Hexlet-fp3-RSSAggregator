@@ -8,22 +8,22 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
 // const __filename = fileURLToPath(import.meta.url);
 // const __dirname = dirname(__filename);
-const setMode = process.env.NODE_ENV || 'development';
+// const setMode = process.env.NODE_ENV || 'development';
 
 export default {
-  mode: setMode,
-  devtool: 'inline-source-map',
-  devServer: {
-    static: {
-      directory: resolve(process.cwd(), 'dist'),
-    },
-    watchFiles: [resolve(process.cwd(), 'dist/index.html')],
-    open: true,
-    hot: true,
-    liveReload: true,
-    compress: true,
-    historyApiFallback: true,
-  },
+  // mode: setMode,
+  // devtool: 'inline-source-map',
+  // devServer: {
+  //   static: {
+  //     directory: resolve(process.cwd(), 'dist'),
+  //   },
+  //   watchFiles: [resolve(process.cwd(), 'dist/index.html')],
+  //   open: true,
+  //   hot: true,
+  //   liveReload: true,
+  //   compress: true,
+  //   historyApiFallback: true,
+  // },
   // watch: setMode === 'development',
   // watchOptions: {
   //   aggregateTimeout: 300, // Delay the first rebuild (in ms)
