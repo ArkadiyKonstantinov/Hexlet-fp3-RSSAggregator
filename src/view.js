@@ -80,7 +80,7 @@ const renderPosts = (state, i18n) => {
     postEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-item-start', 'border-0', 'border-end-0');
 
     const postTitle = document.createElement('a');
-    const isRead = state.stateUi.readPosts.includes(post.postId);
+    const isRead = state.ui.readPosts.includes(post.postId);
     const postIitleClasses = isRead ? ['fw-normal', 'link-secondary'] : ['fw-bold'];
     postTitle.classList.add(...postIitleClasses);
     postTitle.href = post.link;
@@ -120,7 +120,7 @@ const renderPosts = (state, i18n) => {
 
 const renderModal = (state) => {
   const modalEl = document.querySelector('.modal');
-  const modalPost = state.posts.find((post) => post.postId === state.stateUi.modalPostId);
+  const modalPost = state.posts.find((post) => post.postId === state.ui.modalPostId);
   modalEl.querySelector('.modal-title').textContent = modalPost.title;
   modalEl.querySelector('.modal-body').textContent = modalPost.description;
   modalEl.querySelector('.full-article').href = modalPost.link;
@@ -168,10 +168,10 @@ const render = (state, elements, i18n) => (path, value) => {
     case 'posts':
       renderPosts(state, i18n);
       break;
-    case 'stateUi.readPosts':
+    case 'ui.readPosts':
       renderPosts(state, i18n);
       break;
-    case 'stateUi.modalPostId':
+    case 'ui.modalPostId':
       renderModal(state);
       break;
     default:

@@ -76,7 +76,7 @@ const defaultElements = {
 const defaultState = {
   feeds: [],
   posts: [],
-  stateUi: {
+  ui: {
     modalPostId: null,
     readPosts: [],
   },
@@ -141,8 +141,8 @@ const app = (initialState, elements, i18n) => {
     if (!id) {
       return;
     }
-    watchedState.stateUi.modalPostId = id;
-    watchedState.stateUi.readPosts.push(id);
+    watchedState.ui.modalPostId = id;
+    watchedState.ui.readPosts.push(id);
   });
 };
 
