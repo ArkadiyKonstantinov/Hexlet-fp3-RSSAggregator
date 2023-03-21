@@ -19,13 +19,20 @@ const renderText = (lng, i18n) => {
 const renderFeedback = (feedback, i18n, elements) => {
   const feedbackEl = document.querySelector('.feedback');
   const fromContainer = elements.form.parentElement;
-  const feedbackClass = feedback.type === 'success' ? 'text-success' : 'text-danger';
   if (feedbackEl) {
     feedbackEl.remove();
   }
   const newFeedbackEl = document.createElement('p');
-  newFeedbackEl.classList.add('feedback', 'm-0', 'position-absolute', 'small', feedbackClass);
+  newFeedbackEl.classList.add('feedback', 'm-0', 'position-absolute', 'small');
   newFeedbackEl.textContent = i18n.t(feedback.key);
+  if (feedback.type === 'error') {
+    elements.fields.rssUrl.classList.add('is-invalid');
+    newFeedbackEl.classList.add('text-danger');
+  }
+  if (feedback.type === 'success') {
+    elements.fields.rssUrl.classList.remove('is-invalid');
+    newFeedbackEl.classList.add('text-success');
+  }
   fromContainer.append(newFeedbackEl);
 };
 
@@ -149,11 +156,12 @@ const render = (state, elements, i18n) => (path, value) => {
   switch (path) {
     case 'lng':
       renderText(value, i18n);
+      renderPosts(state, i18n);
       break;
     case 'form.processState':
       handleProcessState(state, elements, i18n, value);
       break;
-    case 'form.valid':
+    case 'form.processFeedback':
       renderFeedback(state.form.processFeedback, i18n, elements);
       break;
     case 'feeds':

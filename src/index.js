@@ -15,25 +15,24 @@ const proxifyUrl = (rssUrl) => {
   return url;
 };
 
-const validate = (state) => {
+const validate = (state, url) => {
   yup.setLocale({
     string: {
-      url: () => ({ key: 'feedback.error.notValidURL', type: 'error' }),
+      url: () => ('Must be valid'),
+    },
+    mixed: {
+      required: () => ('Input is empty'),
+      notOneOf: () => ('Already exists'),
     },
   });
 
-  const schema = yup.object().shape(
-    {
-      rssUrl: yup.string().url(),
-    },
-  );
-
-  return schema.validate(state.form.fields, { abortEarly: false });
+  const schema = yup.string().url().required().notOneOf(state.feeds.map((f) => f.url));
+  return schema.validate(url);
 };
 
 const pars = (XMLdata) => {
   const rss = new window.DOMParser().parseFromString(XMLdata, 'text/xml');
-  if (!rss.querySelector('channel')) { throw new Error('Parse error!'); }
+  if (rss.querySelector('parsererror')) { throw new Error('Parse error!'); }
 
   return {
     title: rss.querySelector('title').textContent,
@@ -51,11 +50,11 @@ const updateFeed = (feed, state) => {
   axios.get(url)
     .then((response) => pars(response.data.contents))
     .then((parsedData) => {
-      const filtred = parsedData.items
+      const newPosts = parsedData.items
         .filter((item) => !state.posts.find((post) => post.title === item.title))
         .map((item) => ({ ...item, feedId: feed.feedId, postId: uniqueId() }));
-      if (filtred) {
-        state.posts.unshift(...filtred);
+      if (newPosts) {
+        state.posts.unshift(...newPosts);
       }
     })
     .then(() => setTimeout(() => updateFeed(feed, state), 5000))
@@ -65,7 +64,9 @@ const updateFeed = (feed, state) => {
 const defaultElements = {
   form: document.querySelector('.rss-form'),
   submitButton: document.querySelector('[type="submit"]'),
+  feedsContainer: document.querySelector('.feeds'),
   postsContainer: document.querySelector('.posts'),
+  feedback: document.querySelector('.feedback'),
   fields: {
     rssUrl: document.getElementById('url-input'),
   },
@@ -85,15 +86,6 @@ const defaultState = {
       key: '',
       type: '',
     },
-    valid: true,
-    fields: {
-      rssUrl: '',
-    },
-    fieldsUi: {
-      touched: {
-        rssUrl: false,
-      },
-    },
   },
 };
 
@@ -103,29 +95,13 @@ const app = (initialState, elements, i18n) => {
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
-    const { value } = elements.fields.rssUrl;
-    watchedState.form.fields.rssUrl = value;
-    watchedState.form.fieldsUi.touched.rssUrl = true;
-    validate(watchedState)
+    const url = elements.fields.rssUrl.value;
+    validate(watchedState, url)
       .then(() => {
-        watchedState.form.errors = {};
-        watchedState.form.valid = true;
         watchedState.form.processState = 'adding';
       })
-      .then(() => {
-        const findFeed = initialState.feeds
-          .find((feed) => feed.url === watchedState.form.fields.rssUrl);
-        if (findFeed) {
-          throw new Error('Already exists!');
-        }
-      })
-      .then(() => {
-        const url = proxifyUrl(initialState.form.fields.rssUrl);
-        return axios.get(url)
-          .then((response) => response.data.contents);
-      })
+      .then(() => axios.get(proxifyUrl(url)).then((response) => response.data.contents))
       .then((contents) => {
-        const url = initialState.form.fields.rssUrl;
         const parsedData = pars(contents);
         const feed = {
           feedId: uniqueId(),
@@ -146,28 +122,16 @@ const app = (initialState, elements, i18n) => {
       })
       .then((feed) => updateFeed(feed, watchedState))
       .catch((error) => {
-        if (error.name === 'ValidationError') {
-          watchedState.form.processFeedback = error.message;
-          watchedState.form.valid = false;
-          console.dir(error);
-          throw error;
-        } else {
-          switch (error.message) {
-            case 'Already exists':
-              watchedState.form.processFeedback = { key: 'feedback.error.alreadyExists', type: 'error' };
-              break;
-            case 'Network Error':
-              watchedState.form.processFeedback = { key: 'feedback.error.netError', type: 'error' };
-              break;
-            case 'Parse error!':
-              watchedState.form.processFeedback = { key: 'feedback.error.parsingError', tyep: 'error' };
-              break;
-            default:
-              throw error;
-          }
-          watchedState.form.processState = 'errors';
-          throw error;
-        }
+        const errorsMap = new Map([
+          ['Must be valid', { key: 'feedback.error.notValidURL', type: 'error' }],
+          ['Input is empty', { key: 'feedback.error.urlRequired', type: 'error' }],
+          ['Already exists', { key: 'feedback.error.alreadyExists', type: 'error' }],
+          ['Network Error', { key: 'feedback.error.netError', type: 'error' }],
+          ['Parse error!', { key: 'feedback.error.parsingError', type: 'error' }],
+        ]);
+        watchedState.form.processFeedback = errorsMap.get(error.message);
+        watchedState.form.processState = 'errors';
+        console.dir(error);
       });
   });
 
