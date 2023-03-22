@@ -7,6 +7,7 @@ import axios from 'axios';
 import * as yup from 'yup';
 import resources from './locales/index.js';
 import watch from './view.js';
+import parse from './parse.js';
 
 const proxifyUrl = (rssUrl) => {
   const url = new URL('/get', 'https://allorigins.hexlet.app/');
@@ -28,21 +29,6 @@ const validate = (state, url) => {
 
   const schema = yup.string().url().required().notOneOf(state.feeds.map((f) => f.url));
   return schema.validate(url);
-};
-
-const parse = (XMLdata) => {
-  const rss = new window.DOMParser().parseFromString(XMLdata, 'text/xml');
-  if (rss.querySelector('parsererror')) { throw new Error('Parse error!'); }
-
-  return {
-    title: rss.querySelector('title').textContent,
-    description: rss.querySelector('description').textContent,
-    items: [...rss.querySelectorAll('item')].map((item) => ({
-      title: item.querySelector('title').textContent,
-      link: item.querySelector('link').textContent,
-      description: item.querySelector('description').textContent,
-    })),
-  };
 };
 
 const updateFeed = (feed, state) => {
