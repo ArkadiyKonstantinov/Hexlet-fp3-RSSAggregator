@@ -6,6 +6,14 @@ import resources from './locales/index.js';
 import watch from './view.js';
 import parse from './parse.js';
 
+const errorsMap = new Map([
+  ['Must be valid', { key: 'feedback.error.notValidURL', type: 'error' }],
+  ['Input is empty', { key: 'feedback.error.urlRequired', type: 'error' }],
+  ['Already exists', { key: 'feedback.error.alreadyExists', type: 'error' }],
+  ['Network Error', { key: 'feedback.error.netError', type: 'error' }],
+  ['Parse error!', { key: 'feedback.error.parsingError', type: 'error' }],
+]);
+
 const proxifyUrl = (rssUrl) => {
   const url = new URL('/get', 'https://allorigins.hexlet.app/');
   url.searchParams.set('disableCache', true);
@@ -77,16 +85,8 @@ const app = (initialState, elements, i18n) => {
       })
       .then((feed) => updateFeed(feed, watchedState))
       .catch((error) => {
-        const errorsMap = new Map([
-          ['Must be valid', { key: 'feedback.error.notValidURL', type: 'error' }],
-          ['Input is empty', { key: 'feedback.error.urlRequired', type: 'error' }],
-          ['Already exists', { key: 'feedback.error.alreadyExists', type: 'error' }],
-          ['Network Error', { key: 'feedback.error.netError', type: 'error' }],
-          ['Parse error!', { key: 'feedback.error.parsingError', type: 'error' }],
-        ]);
         watchedState.form.processFeedback = errorsMap.get(error.message);
         watchedState.form.processState = 'failed';
-        console.dir(error);
       });
   });
 
@@ -100,12 +100,37 @@ const app = (initialState, elements, i18n) => {
   });
 };
 
-export default (state, elements) => {
+export default () => {
+  const defaultElements = {
+    form: document.querySelector('.rss-form'),
+    urlInput: document.getElementById('url-input'),
+    submitButton: document.querySelector('[type="submit"]'),
+    feedsContainer: document.querySelector('.feeds'),
+    postsContainer: document.querySelector('.posts'),
+    feedback: document.querySelector('.feedback'),
+  };
+
+  const defaultState = {
+    feeds: [],
+    posts: [],
+    ui: {
+      modalPostId: null,
+      readPosts: [],
+    },
+    form: {
+      lng: '',
+      processState: 'filling',
+      processFeedback: {
+        key: '',
+        type: '',
+      },
+    },
+  };
   const i18nInstance = i18next.createInstance();
   i18nInstance
     .init({
       lng: 'ru',
       resources,
     })
-    .then(() => app(state, elements, i18nInstance));
+    .then(() => app(defaultState, defaultElements, i18nInstance));
 };
