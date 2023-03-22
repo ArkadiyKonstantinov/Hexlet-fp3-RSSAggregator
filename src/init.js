@@ -85,8 +85,11 @@ const app = (initialState, elements, i18n) => {
       })
       .then((feed) => updateFeed(feed, watchedState))
       .catch((error) => {
+        console.dir(errorsMap.get(error.message));
         watchedState.form.processFeedback = errorsMap.get(error.message);
+        console.dir(watchedState.form.processFeedback);
         watchedState.form.processState = 'failed';
+        throw error;
       });
   });
 
