@@ -39,8 +39,8 @@ const validate = (feeds, feedUrl) => {
 const updateFeed = (feed, state) => {
   const url = proxifyUrl(feed.url);
   axios.get(url)
-    .then((response) => parse(response.data.contents))
-    .then((parsedData) => {
+    .then((response) => {
+      const parsedData = parse(response.data.content);
       const newPosts = parsedData.items
         .filter((item) => !state.posts.find((post) => post.title === item.title))
         .map((item) => ({ ...item, feedId: feed.feedId, postId: uniqueId() }));
