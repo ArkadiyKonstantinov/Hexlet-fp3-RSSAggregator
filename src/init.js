@@ -21,7 +21,7 @@ const proxifyUrl = (rssUrl) => {
   return url;
 };
 
-const validate = (state, url) => {
+const validate = (feeds, feedUrl) => {
   yup.setLocale({
     string: {
       url: () => ('Must be valid'),
@@ -32,8 +32,8 @@ const validate = (state, url) => {
     },
   });
 
-  const schema = yup.string().url().required().notOneOf(state.feeds.map((f) => f.url));
-  return schema.validate(url);
+  const schema = yup.string().url().required().notOneOf(feeds.map((f) => f.url));
+  return schema.validate(feedUrl);
 };
 
 const updateFeed = (feed, state) => {
@@ -59,7 +59,7 @@ const app = (initialState, elements, i18n) => {
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
     const url = elements.urlInput.value;
-    validate(watchedState, url)
+    validate(watchedState.feeds, url)
       .then(() => {
         watchedState.form.processState = 'adding';
       })
