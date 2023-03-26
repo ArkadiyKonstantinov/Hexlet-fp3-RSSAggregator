@@ -62,9 +62,11 @@ const app = (initialState, elements, i18n) => {
     validate(watchedState.feeds, url)
       .then(() => {
         watchedState.form.processState = 'adding';
+        return axios.get(proxifyUrl(url));
       })
-      .then(() => axios.get(proxifyUrl(url)).then((response) => response.data.contents))
-      .then((contents) => {
+      // .then(() => axios.get(proxifyUrl(url)).then((response) => response.data.contents))
+      .then((response) => {
+        const { contents } = response.data;
         const parsedData = parse(contents);
         const feed = {
           feedId: uniqueId(),
@@ -81,9 +83,8 @@ const app = (initialState, elements, i18n) => {
         watchedState.posts.unshift(...posts);
         watchedState.form.processFeedback = { key: 'feedback.success.feedAdded', type: 'success' };
         watchedState.form.processState = 'filling';
-        return feed;
+        setTimeout(() => updateFeed(feed, watchedState), 5000);
       })
-      .then((feed) => updateFeed(feed, watchedState))
       .catch((error) => {
         console.dir(errorsMap.get(error.message));
         watchedState.form.processFeedback = errorsMap.get(error.message);
