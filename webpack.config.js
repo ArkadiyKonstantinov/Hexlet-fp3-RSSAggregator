@@ -6,8 +6,6 @@ import autoprefixer from 'autoprefixer';
 import { AddDependencyPlugin } from 'webpack-add-dependency-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = dirname(__filename);
 const setMode = process.env.NODE_ENV || 'development';
 
 export default {
@@ -17,20 +15,28 @@ export default {
     static: {
       directory: resolve(process.cwd(), 'dist'),
     },
-    watchFiles: [resolve(process.cwd(), 'dist/index.html')],
-    open: true,
+    // watchFiles: [resolve(process.cwd(), 'dist/index.html')],
+    watchFiles: ['src/*.js', 'src/*.html'],
+    client: {
+      progress: true,
+    },
+    // devMiddleware: {
+    //   publicPath: '/dist/',
+    //   writeToDisk: true,
+    // },
+    // open: true,
     hot: true,
-    liveReload: true,
+    // liveReload: true,
     compress: true,
     historyApiFallback: true,
   },
   // watch: setMode === 'development',
-  // watchOptions: {
-  //   aggregateTimeout: 300, // Delay the first rebuild (in ms)
-  //   poll: 1000, // Poll using interval (in ms or a boolean)
-  //   ignored: /node_modules/, // Ignore to decrease CPU usage
-  // },
-  entry: ['./src', 'webpack-plugin-serve/client'],
+  watchOptions: {
+    aggregateTimeout: 300, // Delay the first rebuild (in ms)
+    poll: 1000, // Poll using interval (in ms or a boolean)
+    ignored: /node_modules/, // Ignore to decrease CPU usage
+  },
+  entry: ['./src/index.js', './src/init.js', 'webpack-plugin-serve/client'],
   output: {
     clean: true,
     path: resolve(process.cwd(), './dist'),
