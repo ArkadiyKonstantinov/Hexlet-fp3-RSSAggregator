@@ -36,25 +36,27 @@ const validate = (feeds, feedUrl) => {
   return schema.validate(feedUrl);
 };
 
-const updateFeed = (feed, state) => {
-  const url = proxifyUrl(feed.url);
-  axios.get(url)
-    .then((response) => {
-      const parsedData = parse(response.data.content);
-      const newPosts = parsedData.items
-        .filter((item) => !state.posts.find((post) => post.title === item.title))
-        .map((item) => ({ ...item, feedId: feed.feedId, postId: uniqueId() }));
-      if (newPosts) {
+const updateFeeds = (state) => {
+  const feeds = state.feeds.map((feed) => {
+    const url = proxifyUrl(feed.url);
+    return axios.get(url)
+      .then((response) => {
+        const { contents } = response.data;
+        const parsedData = parse(contents);
+        const newPosts = parsedData.items
+          .filter((item) => !state.posts.find((post) => post.title === item.title))
+          .map((item) => ({ ...item, feedId: feed.feedId, postId: uniqueId() }));
         state.posts.unshift(...newPosts);
-      }
-    })
-    .then(() => setTimeout(() => updateFeed(feed, state), 5000))
-    .catch((error) => { throw error; });
+      })
+      .catch((error) => { throw error; });
+  });
+  Promise.all(feeds).finally(() => setTimeout(() => updateFeeds(state), 5000));
 };
 
 const app = (initialState, elements, i18n) => {
   const watchedState = watch(initialState, elements, i18n);
   watchedState.lng = i18n.lng;
+  setTimeout(() => updateFeeds(watchedState), 5000);
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -64,7 +66,6 @@ const app = (initialState, elements, i18n) => {
         watchedState.form.processState = 'adding';
         return axios.get(proxifyUrl(url));
       })
-      // .then(() => axios.get(proxifyUrl(url)).then((response) => response.data.contents))
       .then((response) => {
         const { contents } = response.data;
         const parsedData = parse(contents);
@@ -83,12 +84,9 @@ const app = (initialState, elements, i18n) => {
         watchedState.posts.unshift(...posts);
         watchedState.form.processFeedback = { key: 'feedback.success.feedAdded', type: 'success' };
         watchedState.form.processState = 'filling';
-        setTimeout(() => updateFeed(feed, watchedState), 5000);
       })
       .catch((error) => {
-        console.dir(errorsMap.get(error.message));
         watchedState.form.processFeedback = errorsMap.get(error.message);
-        console.dir(watchedState.form.processFeedback);
         watchedState.form.processState = 'failed';
         throw error;
       });
