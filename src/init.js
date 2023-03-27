@@ -56,6 +56,7 @@ const updateFeeds = (state) => {
 const app = (initialState, elements, i18n) => {
   const watchedState = watch(initialState, elements, i18n);
   watchedState.lng = i18n.lng;
+  i18n.changeLanguage(watchedState.lng);
   setTimeout(() => updateFeeds(watchedState), 5000);
 
   elements.form.addEventListener('submit', (e) => {

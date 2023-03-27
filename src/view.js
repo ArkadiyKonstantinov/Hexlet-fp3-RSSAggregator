@@ -8,8 +8,6 @@ const renderText = (lng, i18n) => {
     label: document.querySelector('label'),
   };
 
-  i18n.changeLanguage(lng);
-
   textElemente.header.textContent = i18n.t('text.header');
   textElemente.slogan.textContent = i18n.t('text.slogan');
   textElemente.example.textContent = i18n.t('text.example');
