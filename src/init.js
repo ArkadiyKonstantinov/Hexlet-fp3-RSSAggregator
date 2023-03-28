@@ -56,17 +56,27 @@ const updateFeeds = (state) => {
 const app = (initialState, elements, i18n) => {
   const watchedState = watch(initialState, elements, i18n);
   watchedState.lng = i18n.lng;
-  i18n.changeLanguage(watchedState.lng);
   setTimeout(() => updateFeeds(watchedState), 5000);
+
+  elements.form.addEventListener('input', () => {
+    const url = elements.urlInput.value;
+    validate(watchedState.feeds, url)
+      .then(() => {
+        watchedState.form.valid = true;
+        watchedState.form.processFeedback = null;
+      })
+      .catch((error) => {
+        console.dir(error);
+        watchedState.form.valid = false;
+        watchedState.form.processFeedback = errorsMap.get(error.message);
+      });
+  });
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
     const url = elements.urlInput.value;
-    validate(watchedState.feeds, url)
-      .then(() => {
-        watchedState.form.processState = 'adding';
-        return axios.get(proxifyUrl(url));
-      })
+    watchedState.downloadingProcess.status = 'downloading';
+    axios.get(proxifyUrl(url))
       .then((response) => {
         const { contents } = response.data;
         const parsedData = parse(contents);
@@ -84,11 +94,12 @@ const app = (initialState, elements, i18n) => {
         watchedState.feeds.unshift(feed);
         watchedState.posts.unshift(...posts);
         watchedState.form.processFeedback = { key: 'feedback.success.feedAdded', type: 'success' };
-        watchedState.form.processState = 'filling';
+        watchedState.downloadingProcess.status = 'idle';
       })
       .catch((error) => {
         watchedState.form.processFeedback = errorsMap.get(error.message);
-        watchedState.form.processState = 'failed';
+        watchedState.downloadingProcess.status = 'failed';
+        console.dir(error);
         throw error;
       });
   });
@@ -120,15 +131,16 @@ export default () => {
       modalPostId: null,
       readPosts: [],
     },
+    downloadingProcess: {
+      status: 'idle', // idle, downloading, failed
+    },
     form: {
       lng: '',
-      processState: 'filling',
-      processFeedback: {
-        key: '',
-        type: '',
-      },
+      valid: true, // true, false
+      processFeedback: null,
     },
   };
+
   const i18nInstance = i18next.createInstance();
   i18nInstance
     .init({

@@ -1,6 +1,6 @@
 import onChange from 'on-change';
 
-const renderText = (lng, i18n) => {
+const renderText = (i18n) => {
   const textElemente = {
     header: document.querySelector('h1'),
     slogan: document.querySelector('p.lead'),
@@ -18,19 +18,21 @@ const renderFeedback = (state, i18n, elements) => {
   const feedbackEl = document.querySelector('.feedback');
   const fromContainer = elements.form.parentElement;
   if (feedbackEl) { feedbackEl.remove(); }
+  elements.urlInput.classList.remove('is-invalid');
 
-  const newFeedbackEl = document.createElement('p');
-  newFeedbackEl.classList.add('feedback', 'm-0', 'position-absolute', 'small');
-  if (state.form.processFeedback.type === 'error') {
-    elements.urlInput.classList.add('is-invalid');
-    newFeedbackEl.classList.add('text-danger');
+  if (state.form.processFeedback) {
+    const newFeedbackEl = document.createElement('p');
+    newFeedbackEl.classList.add('feedback', 'm-0', 'position-absolute', 'small');
+    if (state.form.processFeedback.type === 'error') {
+      elements.urlInput.classList.add('is-invalid');
+      newFeedbackEl.classList.add('text-danger');
+    }
+    if (state.form.processFeedback.type === 'success') {
+      newFeedbackEl.classList.add('text-success');
+    }
+    newFeedbackEl.textContent = i18n.t(state.form.processFeedback.key);
+    fromContainer.append(newFeedbackEl);
   }
-  if (state.form.processFeedback.type === 'success') {
-    elements.urlInput.classList.remove('is-invalid');
-    newFeedbackEl.classList.add('text-success');
-  }
-  newFeedbackEl.textContent = i18n.t(state.form.processFeedback.key);
-  fromContainer.append(newFeedbackEl);
 };
 
 const renderFeeds = (state, i18n) => {
@@ -124,16 +126,16 @@ const renderModal = (state) => {
   modalEl.querySelector('.full-article').href = modalPost.link;
 };
 
-const handleProcessState = (state, elements, i18n, processState) => {
-  switch (processState) {
-    case 'filling':
+const renderDownloadingStatus = (state, elements, i18n, status) => {
+  switch (status) {
+    case 'idle':
       elements.urlInput.classList.remove('disabled');
       elements.submitButton.classList.remove('disabled');
       elements.form.reset();
       elements.urlInput.focus();
       renderFeedback(state, i18n, elements);
       break;
-    case 'adding':
+    case 'downloading':
       elements.urlInput.classList.add('disabled');
       elements.submitButton.classList.add('disabled');
       break;
@@ -151,10 +153,17 @@ const handleProcessState = (state, elements, i18n, processState) => {
 const render = (state, elements, i18n) => (path, value) => {
   switch (path) {
     case 'lng':
-      renderText(value, i18n);
+      renderText(i18n);
       break;
-    case 'form.processState':
-      handleProcessState(state, elements, i18n, value);
+    case 'form.valid':
+      if (value) {
+        elements.submitButton.classList.remove('disabled');
+      } else {
+        elements.submitButton.classList.add('disabled');
+      }
+      break;
+    case 'downloadingProcess.status':
+      renderDownloadingStatus(state, elements, i18n, value);
       break;
     case 'form.processFeedback':
       renderFeedback(state, i18n, elements);
