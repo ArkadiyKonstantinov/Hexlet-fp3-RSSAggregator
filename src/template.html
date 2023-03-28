@@ -6,6 +6,7 @@
     <title><%= htmlWebpackPlugin.options.title %></title>
   </head>
   <body class="d-flex flex-column min-vh-100" style>
+    <!-- Modal window -->
     <div
       class="modal fade"
       id="modal"
@@ -48,6 +49,7 @@
         </div>
       </div>
     </div>
+
     <main>
       <section class="container-fluid bg-dark p-5">
         <div class="row">
@@ -61,6 +63,7 @@
                     <input
                       id="url-input"
                       autofocus
+                      required
                       name="url"
                       aria-label="url"
                       class="form-control w-100"
