@@ -58,20 +58,6 @@ const app = (initialState, elements, i18n) => {
   watchedState.lng = i18n.lng;
   setTimeout(() => updateFeeds(watchedState), 5000);
 
-  // elements.urlInput.addEventListener('change', () => {
-  //   const url = elements.urlInput.value;
-  //   validate(watchedState.feeds, url)
-  //     .then(() => {
-  //       watchedState.form.valid = true;
-  //       watchedState.form.processFeedback = null;
-  //     })
-  //     .catch((error) => {
-  //       watchedState.form.valid = false;
-  //       watchedState.form.processFeedback = { key: error.message, type: 'error' };
-  //       console.log(error);
-  //     });
-  // });
-
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
     const url = elements.urlInput.value;
@@ -80,8 +66,8 @@ const app = (initialState, elements, i18n) => {
       .then(() => {
         watchedState.form.valid = true;
         watchedState.form.processFeedback = null;
+        return axios.get(proxifyUrl(url));
       })
-      .then(() => axios.get(proxifyUrl(url)))
       .then((response) => {
         const { contents } = response.data;
         const parsedData = parse(contents);
