@@ -16,7 +16,7 @@ export default {
         notValidURL: 'Ссылка должна быть валидным URL',
         alreadyExists: 'RSS уже существует',
         netError: 'Ошибка сети',
-        parsingError: 'Ресурс не содержит валидный RSS',
+        parseError: 'Ресурс не содержит валидный RSS',
       },
       success: {
         feedAdded: 'RSS успешно загружен',

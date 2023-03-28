@@ -1,11 +1,10 @@
 export default (XMLdata) => {
   const rss = new window.DOMParser().parseFromString(XMLdata, 'text/xml');
-  const error = rss.querySelector('parsererror');
-  if (error) {
-    const message = new Error('Parse error!');
-    message.parseError = error.textContent;
-    console.dir(message);
-    throw message;
+  const parseError = rss.querySelector('parsererror');
+  if (parseError) {
+    const error = new Error(parseError.textContent);
+    error.isParseError = true;
+    throw error;
   }
 
   return {

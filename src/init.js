@@ -6,13 +6,13 @@ import resources from './locales/index.js';
 import watch from './view.js';
 import parse from './parse.js';
 
-const errorsMap = new Map([
-  ['Must be valid', { key: 'feedback.error.notValidURL', type: 'error' }],
-  ['Input is empty', { key: 'feedback.error.urlRequired', type: 'error' }],
-  ['Already exists', { key: 'feedback.error.alreadyExists', type: 'error' }],
-  ['Network Error', { key: 'feedback.error.netError', type: 'error' }],
-  ['Parse error!', { key: 'feedback.error.parsingError', type: 'error' }],
-]);
+// const errorsMap = new Map([
+//   ['Must be valid', { key: 'feedback.error.notValidURL', type: 'error' }],
+//   ['Input is empty', { key: 'feedback.error.urlRequired', type: 'error' }],
+//   ['Already exists', { key: 'feedback.error.alreadyExists', type: 'error' }],
+//   ['Network Error', { key: 'feedback.error.netError', type: 'error' }],
+//   ['Parse error!', { key: 'feedback.error.parsingError', type: 'error' }],
+// ]);
 
 const proxifyUrl = (rssUrl) => {
   const url = new URL('/get', 'https://allorigins.hexlet.app/');
@@ -24,11 +24,11 @@ const proxifyUrl = (rssUrl) => {
 const validate = (feeds, feedUrl) => {
   yup.setLocale({
     string: {
-      url: () => ('Must be valid'),
+      url: () => ('feedback.error.notValidURL'),
     },
     mixed: {
-      required: () => ('Input is empty'),
-      notOneOf: () => ('Already exists'),
+      required: () => ('feedback.error.urlRequired'),
+      notOneOf: () => ('feedback.error.alreadyExists'),
     },
   });
 
@@ -66,9 +66,9 @@ const app = (initialState, elements, i18n) => {
         watchedState.form.processFeedback = null;
       })
       .catch((error) => {
-        console.dir(error);
         watchedState.form.valid = false;
-        watchedState.form.processFeedback = errorsMap.get(error.message);
+        watchedState.form.processFeedback = { key: error.message, type: 'error' };
+        console.log(error);
       });
   });
 
@@ -97,10 +97,14 @@ const app = (initialState, elements, i18n) => {
         watchedState.downloadingProcess.status = 'idle';
       })
       .catch((error) => {
-        watchedState.form.processFeedback = errorsMap.get(error.message);
+        if (error.isAxiosError) {
+          watchedState.form.processFeedback = { key: 'feedback.error.netError', type: 'error' };
+        }
+        if (error.isParseError) {
+          watchedState.form.processFeedback = { key: 'feedback.error.parseError', type: 'error' };
+        }
         watchedState.downloadingProcess.status = 'failed';
-        console.dir(error);
-        throw error;
+        console.log(error);
       });
   });
 

@@ -16,7 +16,7 @@ export default {
         notValidURL: 'Link must be a valid URL',
         alreadyExists: 'RSS already exists',
         netError: 'Network error',
-        parsingError: 'The resource does not contain valid RSS',
+        parseError: 'The resource does not contain valid RSS',
       },
       success: {
         feedAdded: 'RSS uploaded successfully',
