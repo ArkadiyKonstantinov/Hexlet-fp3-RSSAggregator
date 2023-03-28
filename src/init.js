@@ -58,7 +58,7 @@ const app = (initialState, elements, i18n) => {
   watchedState.lng = i18n.lng;
   setTimeout(() => updateFeeds(watchedState), 5000);
 
-  elements.form.addEventListener('input', () => {
+  elements.urlInput.addEventListener('input', () => {
     const url = elements.urlInput.value;
     validate(watchedState.feeds, url)
       .then(() => {
