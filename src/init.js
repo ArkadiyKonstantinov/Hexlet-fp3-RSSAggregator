@@ -58,7 +58,7 @@ const app = (initialState, elements, i18n) => {
   watchedState.lng = i18n.lng;
   setTimeout(() => updateFeeds(watchedState), 5000);
 
-  // elements.urlInput.addEventListener('input', () => {
+  // elements.urlInput.addEventListener('change', () => {
   //   const url = elements.urlInput.value;
   //   validate(watchedState.feeds, url)
   //     .then(() => {
@@ -76,7 +76,12 @@ const app = (initialState, elements, i18n) => {
     e.preventDefault();
     const url = elements.urlInput.value;
     watchedState.downloadingProcess.status = 'downloading';
-    axios.get(proxifyUrl(url))
+    validate(watchedState.feeds, url)
+      .then(() => {
+        watchedState.form.valid = true;
+        watchedState.form.processFeedback = null;
+      })
+      .then(() => axios.get(proxifyUrl(url)))
       .then((response) => {
         const { contents } = response.data;
         const parsedData = parse(contents);
@@ -103,8 +108,12 @@ const app = (initialState, elements, i18n) => {
         if (error.isParseError) {
           watchedState.form.processFeedback = { key: 'feedback.error.parseError', type: 'error' };
         }
+        if (error.name === 'ValidationError') {
+          watchedState.form.valid = false;
+          watchedState.form.processFeedback = { key: error.message, type: 'error' };
+        }
         watchedState.downloadingProcess.status = 'failed';
-        console.log(error);
+        console.dir(error);
       });
   });
 
