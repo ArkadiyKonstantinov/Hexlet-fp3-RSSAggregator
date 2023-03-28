@@ -58,19 +58,19 @@ const app = (initialState, elements, i18n) => {
   watchedState.lng = i18n.lng;
   setTimeout(() => updateFeeds(watchedState), 5000);
 
-  elements.urlInput.addEventListener('input', () => {
-    const url = elements.urlInput.value;
-    validate(watchedState.feeds, url)
-      .then(() => {
-        watchedState.form.valid = true;
-        watchedState.form.processFeedback = null;
-      })
-      .catch((error) => {
-        watchedState.form.valid = false;
-        watchedState.form.processFeedback = { key: error.message, type: 'error' };
-        console.log(error);
-      });
-  });
+  // elements.urlInput.addEventListener('input', () => {
+  //   const url = elements.urlInput.value;
+  //   validate(watchedState.feeds, url)
+  //     .then(() => {
+  //       watchedState.form.valid = true;
+  //       watchedState.form.processFeedback = null;
+  //     })
+  //     .catch((error) => {
+  //       watchedState.form.valid = false;
+  //       watchedState.form.processFeedback = { key: error.message, type: 'error' };
+  //       console.log(error);
+  //     });
+  // });
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
